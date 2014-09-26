@@ -21,7 +21,7 @@
     	); 
     }}
     <label class="checkbox">
-		{{ Form::checkbox('rememberme', true) }} Remember me
+		{{ Form::checkbox('rememberme', true) }} Recordarme
 	</label>    
     {{ Form::submit('Ingresar' , array('class' => 'btn btn-lg btn-primary btn-block')) }}
 {{ Form::close() }}
