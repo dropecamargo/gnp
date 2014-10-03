@@ -13,6 +13,7 @@ class CreateEmployeesTable extends Migration {
 	public function up()
 	{
 		Schema::create('empleados',function($table){
+			$table->engine = 'InnoDB';
             $table->increments('id');
             $table->string('cedula',15)->unique();  
             $table->string('nombre',100);           

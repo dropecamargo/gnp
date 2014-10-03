@@ -13,6 +13,7 @@ class CreateQuotaContractsTable extends Migration {
 	public function up()
 	{
 		Schema::create('cuotas',function($table){
+			$table->engine = 'InnoDB';
             $table->integer('contrato')->unsigned();
             $table->integer('cuota')->unsigned();
             $table->dateTime('fecha');

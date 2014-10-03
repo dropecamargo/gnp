@@ -13,6 +13,7 @@ class CreateContractsTable extends Migration {
 	public function up()
 	{
 		Schema::create('contratos',function($table){
+			$table->engine = 'InnoDB';
             $table->increments('id');   
             $table->integer('numero')->unsigned()->unique();
             $table->integer('cliente')->unsigned();
