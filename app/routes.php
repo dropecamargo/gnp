@@ -10,12 +10,6 @@
 | and give it the Closure to execute when that URI is requested.
 |
 */
-  Route::resource('usuario', 'UsuarioController');
-
-
-
-
-
 // Nos mostrará el formulario de login.
 Route::get('login', 'AuthController@showLogin');
 
@@ -28,9 +22,14 @@ Route::group(array('before' => 'auth'), function()
 	// Esta será nuestra ruta de bienvenida.
 	Route::get('/', function()
 	{
-		return View::make('hello');
+		return View::make('admin/index');
 	});
 	// Esta ruta nos servirá para cerrar sesión.
 	Route::get('logout', 'AuthController@logOut');
+	// Rutas modulo usuarios
+	Route::resource('admin/users', 'Admin_UsersController');	
+	Route::post('admin/users/search', 'Admin_UsersController@search');
 	
+	// Rutas modulo empleados 
+	Route::resource('business/employees', 'Business_EmployeesController');
 });

@@ -34,7 +34,8 @@ class AuthController extends BaseController {
 		// Guardamos en un arreglo los datos del usuario.
 		$userdata = array(
             'username' => Input::get('username'),
-            'password'=> Input::get('password')
+            'password'=> Input::get('password'),
+            'activo' => True
         );
 		// Validamos los datos y además mandamos como un segundo parámetro la opción de recordar el usuario.
         if(Auth::attempt($userdata, Input::get('remember-me', 0)))
