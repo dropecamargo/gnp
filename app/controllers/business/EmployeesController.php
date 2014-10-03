@@ -8,9 +8,16 @@ class Business_EmployeesController extends \BaseController {
 	 * @return Response
 	 */
 	public function index()
-	{
+	{		
 		$data["employees"] = $employees = Employee::paginate();
-		return View::make('business/employees/list')->with($data);
+		if(Request::ajax())
+        {
+            //Comments pagination
+            $data["links"] = $employees->links();
+            $employees = View::make('business/employees/employees', $data)->render();
+            return Response::json(array('html' => $employees));
+        }
+        return View::make('business/employees/list')->with($data);  
 	}
 
 

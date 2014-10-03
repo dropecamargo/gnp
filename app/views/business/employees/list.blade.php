@@ -10,7 +10,7 @@
 			<a href="{{ route('business.employees.create') }}" class="btn btn-primary">Nuevo empleado</a>					
 		</div>					
 	</div>
-	<div id="users">
+	<div id="employees">
 		@include('business.employees.employees')
 	</div>
 

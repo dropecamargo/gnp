@@ -26,3 +26,31 @@
 		@endforeach
 	</tbody>
 </table> 
+
+<script type="text/javascript">
+	$(document).ready(function(){	
+		$(".pagination a").click(function()
+		{
+			var url = $(this).attr('href');						
+			$.ajax({
+				url: url,
+				type: "GET",
+				datatype: "html",
+				beforeSend: function() {
+					$('#loading-app').modal('show');
+				}
+			})
+			.done(function(data) {				
+				$('#loading-app').modal('hide');
+				$("#employees").empty().html(data.html);
+			})
+			.fail(function(jqXHR, ajaxOptions, thrownError)
+			{
+				$('#loading-app').modal('hide');
+				$('#error-app').modal('show');
+				$("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");				
+			});
+			return false;
+		});
+	});
+</script>
