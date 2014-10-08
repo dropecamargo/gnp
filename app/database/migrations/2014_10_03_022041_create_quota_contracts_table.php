@@ -16,7 +16,7 @@ class CreateQuotaContractsTable extends Migration {
 			$table->engine = 'InnoDB';
             $table->integer('contrato')->unsigned();
             $table->integer('cuota')->unsigned();
-            $table->dateTime('fecha');
+            $table->date('fecha');
            	$table->float('valor');
           	$table->float('saldo');
 			$table->timestamps();

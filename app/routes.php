@@ -32,4 +32,11 @@ Route::group(array('before' => 'auth'), function()
 	
 	// Rutas modulo empleados 
 	Route::resource('business/employees', 'Business_EmployeesController');
+
+	// Rutas modulo contratos 
+	Route::resource('business/contracts', 'Business_ContractsController');
+
+	// Rutas modulo clientes 
+	Route::resource('business/customers', 'Business_CustomersController');
+	Route::post('business/customers/find', 'Business_CustomersController@find');
 });

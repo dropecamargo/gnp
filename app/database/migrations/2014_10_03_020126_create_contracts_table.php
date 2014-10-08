@@ -17,10 +17,10 @@ class CreateContractsTable extends Migration {
             $table->increments('id');   
             $table->integer('numero')->unsigned()->unique();
             $table->integer('cliente')->unsigned();
-            $table->dateTime('fecha');
+            $table->date('fecha');
            	$table->float('valor');
            	$table->integer('cuotas');
-           	$table->dateTime('primera');           	
+           	$table->date('primera');           	
 			$table->timestamps();
 
         	$table->foreign('cliente')->references('id')->on('clientes')->onDelete('restrict');        	           	
