@@ -8,9 +8,7 @@ class Contract extends Eloquent {
 	 */
 	protected $table = 'contratos';
 
-    protected $perPage = 6;
-
-	protected $fillable = array('numero', 'fecha', 'cliente', 'valor', 'cuotas', 'primera');
+	protected $fillable = array('numero', 'fecha', 'cliente', 'vendedor', 'valor', 'cuotas', 'primera');
 
 	public $errors;
 
@@ -20,9 +18,11 @@ class Contract extends Eloquent {
             'numero' => 'required|min:1|max:10|unique:contratos|regex:[^[0-9]*$]',            
             'fecha' => 'required|date_format:Y-m-d',
             'cliente_cedula' => 'required|min:5|max:15',
-            'cliente' => 'required',
-            'cuotas' => 'required|min:1|max:10|regex:[^[0-9]*$]',
+            'cliente' => 'required|numeric',
+            'vendedor' => 'required|numeric|min:1',
+            'cuotas' => 'required|min:1|max:10|regex:[^[0-9]*$]|numeric',
             'primera' => 'required|date_format:Y-m-d',
+            'valor' => 'required|min:1|regex:[^[0-9]*$]'
         );
         
         if ($this->exists){
@@ -40,14 +40,17 @@ class Contract extends Eloquent {
 
     }
 
-	public function validAndSave($data)
-    {
-        if ($this->isValid($data))
-        {
-            $this->fill($data);
-            $this->save();            
-            return true;
-        }        
-        return false;
+    public function suma_fechas($fecha){
+        $ndias = 30;
+        if (preg_match("/[0-9]{1,2}\/[0-9]{1,2}\/([0-9][0-9]){1,2}/",$fecha)) {
+            list($ao,$mes,$dia) = explode("/", $fecha);
+        }else if (preg_match("/[0-9]{1,2}-[0-9]{1,2}-([0-9][0-9]){1,2}/",$fecha)) {
+            list($ao,$mes,$dia) = explode("-", $fecha);
+        }else{
+            return NULL;
+        }
+        $nueva = mktime(0,0,0, $mes,$dia,$ao) + $ndias * 24 * 60 * 60;
+        $nuevafecha=date("Y-m-d",$nueva);
+        return ($nuevafecha);
     }
 }

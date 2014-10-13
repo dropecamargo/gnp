@@ -25,11 +25,11 @@
 	<div class="row">
         <div class="form-group col-md-3">
             <label>Cliente</label>
-            <div>{{ $contract->cliente }}</div>
+            <div>{{ $customer->cedula }}</div>
         </div>
         <div class="form-group col-md-6">
             <label>Nombre</label>
-            <div>{{ $contract->cliente }}</div>
+            <div>{{ $customer->nombre }}</div>
         </div>        
     </div>
     <div class="row">
@@ -47,6 +47,12 @@
         </div>        
     </div>
     <div class="row">
+        <div class="form-group col-md-6">
+            <label>Vendedor</label>
+            <div>{{ $vendor->nombre }}</div>
+        </div>
+    </div>
+    <div class="row">
         <div class="form-group col-md-4">
             <label>Creación</label>
             <div>{{ $contract->created_at }}</div>
@@ -56,4 +62,25 @@
             <div>{{ $contract->updated_at }}</div>
         </div>  
     </div>
+
+    <table id="table-employees" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Cuota</th>
+                <th>Fecha</th>
+                <th>Valor</th>
+                <th>Saldo</th>
+            </tr>   
+        </thead>                
+        <tbody>
+            @foreach ($quotas as $quota)
+                <tr>
+                    <td>{{ $quota->cuota }}</td>
+                    <td>{{ $quota->fecha }}</td>
+                    <td>{{ $quota->valor }}</td>
+                    <td>{{ $quota->saldo }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table> 
 @stop 

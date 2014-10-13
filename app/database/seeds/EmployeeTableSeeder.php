@@ -11,5 +11,12 @@ class EmployeeTableSeeder extends Seeder {
             'cargo'   => 'V',
             'activo' => True                    
         ));
+
+        Employee::create(array(
+            'cedula'   => '79512780',
+            'nombre'   => 'ALVARO FORERO',
+            'cargo'   => 'C',
+            'activo' => True                    
+        ));
     }
 }

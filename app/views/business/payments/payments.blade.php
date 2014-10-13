@@ -1,28 +1,30 @@
 <div align="center">
-	{{ $contracts->links() }}
+	{{ $payments->links() }}
 </div>
-<table id="table-search-contracts" class="table table-striped">
+<table id="table-search-payments" class="table table-striped">
 	<thead>
 		<tr>
 			<th>Numero</th>
 			<th>Fecha</th>
+			<th>Contrato</th>
 			<th>Cliente</th>
-			<th>Vendedor</th>			
+			<th>Valor</th>			
 			<th>&nbsp;</th>
 		</tr>	
 	</thead>     	    	
 	<tbody>
-		@foreach ($contracts as $contract)
+		@foreach ($payments as $payment)
 			<tr>
-				<td>{{ $contract->numero }}</td>
-				<td>{{ $contract->fecha }}</td>
-				<td>{{ $contract->cliente_nombre }}</td>
-				<td>{{ $contract->vendedor_nombre }}</td>
+				<td>{{ $payment->numero }}</td>
+				<td>{{ $payment->fecha }}</td>
+				<td>{{ $payment->contrato }}</td>
+				<td>{{ $payment->cliente_nombre }}</td>
+				<td>{{ $payment->valor }}</td>
 				<td nowrap="nowrap">					
-					<a href="{{ route('business.contracts.show', $contract->id) }}" class="btn btn-info">Ver</a>
+					<a href="{{ route('business.payments.show', $payment->id) }}" class="btn btn-info">Ver</a>
 				</td>
 			</tr>
-		@endforeach
+		@endforeach	
 	</tbody>
 </table> 
 
@@ -41,7 +43,7 @@
 			})
 			.done(function(data) {				
 				$('#loading-app').modal('hide');
-				$("#contracts").empty().html(data.html);
+				$("#payments").empty().html(data.html);
 			})
 			.fail(function(jqXHR, ajaxOptions, thrownError)
 			{

@@ -3,13 +3,11 @@
 <?php
 	// Data contract
     if ($contract->exists):
-        $form_data = array('route' => array('business.contracts.update', $contract->id), 'method' => 'PATCH');
-        $form_data_customer = array('route' => array('business.customers.update', $customer->id), 'method' => 'PATCH', 'id' => 'form-add-customer');        
-        $action    = 'Editar';
+        $form_data = array('route' => array('business.contracts.update', $contract->id), 'method' => 'PATCH', 'id' => 'form-add-contract');
+        $action    = 'Editar';        
     else:
-        $form_data = array('route' => 'business.contracts.store', 'method' => 'POST');
-    	$form_data_customer = array('route' => 'business.customers.store', 'method' => 'POST', 'id' => 'form-add-customer');    	
-        $action    = 'Crear';
+        $form_data = array('route' => 'business.contracts.store', 'method' => 'POST', 'id' => 'form-add-contract');
+        $action    = 'Crear';        
     endif;
 ?>
 
@@ -25,7 +23,7 @@
 	    </div>
   	</div>  
 
-	@include ('errors', array('errors' => $errors))
+  	<div id="validation-errors-contract" style="display: none"></div>
 
 	{{ Form::model($contract, $form_data, array('role' => 'form')) }}
     
@@ -43,14 +41,21 @@
     </div>	
 	<div class="row">
         <div class="form-group col-md-3">
-            {{ Form::label('cliente_cedula', 'Cliente') }}
+        	{{ Form::label('cliente_cedula', 'Cliente') }}
+            <span class="glyphicon glyphicon-user" id="customer-glyphicon" style="cursor: pointer;"></span>            
             {{ Form::text('cliente_cedula', null, array('placeholder' => 'Ingrese cliente', 'class' => 'form-control')) }}        
         	{{ Form::hidden('cliente', null, array('id' => 'cliente')) }}
         </div>
-        <div class="form-group col-md-6">
+        <div class="form-group col-md-6">        	
             {{ Form::label('cliente_nombre', 'Nombre') }}
             {{ Form::text('cliente_nombre', null, array('class' => 'form-control', 'disabled' => 'disabled')) }}        
         </div>        
+    </div>
+	<div class="row">
+    	<div class="form-group col-md-6">
+            {{ Form::label('vendedor', 'Vendedor') }}
+            {{ Form::select('vendedor', array('0' => 'Seleccione vendedor') + $vendors ,null, array('class' => 'form-control')) }}
+        </div>
     </div>
     <div class="row">
         <div class="form-group col-md-3">
@@ -67,27 +72,22 @@
         </div>        
     </div>
 	{{ Form::button($action . ' contrato', array('type' => 'submit', 'class' => 'btn btn-success')) }}        
-	
 	{{ Form::close() }}
 	 
-	<!-- Large modal -->
 	<div class="modal fade" id="modal-client" data-backdrop="static" data-keyboard="false" aria-hidden="true">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
-				<div id="validation-errors-client" style="display: none"></div>
-				{{ Form::model($customer, $form_data_customer, array('role' => 'form')) }}
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-						<h4 class="modal-title">Crear cliente</h4>
-					</div>
-					<div class="modal-body">
-						@include ('business/customers/template', array())	
-					</div>
-					<div class="modal-footer">
-						<button type="button" id="btn-close-modal-client" class="btn btn-default">Cerrar</button>
-						{{ Form::button('Crear cliente', array('type' => 'submit', 'class' => 'btn btn-success')) }}        					
-					</div>
-				{{ Form::close() }}
+				<div id="validation-errors-client" style="display: none"></div>				
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title">Cliente</h4>
+				</div>
+				<div class="modal-body">
+					<div id="content-modal-customers"></div>							
+				</div>
+				<div class="modal-footer">
+					<button type="button" id="btn-close-modal-client" class="btn btn-default">Continuar</button>
+				</div>				
 			</div>
 		</div>
 	</div>
@@ -100,12 +100,16 @@
 			  	keyboard: false,			  	
 			  	show: false
 			})
-
-			$("#cliente_cedula").change(function() {
-				var inputVal = $(this).val();
+			
+			var event_client = function() {
+				var inputVal = $("#cliente_cedula").val();
 			    var numericReg = /^\d*[0-9](|.\d*[0-9]|,\d*[0-9])?$/;
+			    
+			    $('#cliente').val('')
+        		$('#cliente_nombre').val('')
+
 			    if(!numericReg.test(inputVal)) {
-			    	$(this).val('')
+			    	$("#cliente_cedula").val('')
 			    }else{
 			    	var url = root_url + 'business/customers/find';
 			    	$.ajax({
@@ -118,15 +122,16 @@
 							$('#loading-app').modal('show');
 						},
 		                success: function(data) {
-		                	$('#loading-app').modal('hide');
+		                	$('#loading-app').modal('hide')
+		                	$('#content-modal-customers').empty().html(data.customer_form)		                	
 		                	if(data.success == false) {
-								$('#cedula').val(inputVal)
-								$('#modal-client').modal('show')	
+								$('#cedula').val(inputVal)									
 		                	}else{		                	
-		                		$('#cliente').val(data.customer.id);
-	                    		$('#cliente_cedula').val(data.customer.cedula);
-	                    		$('#cliente_nombre').val(data.customer.nombre);	
-		                	}		                	
+		                		$('#cliente').val(data.customer.id)
+	                    		$('#cliente_cedula').val(data.customer.cedula)
+	                    		$('#cliente_nombre').val(data.customer.nombre)	
+		                	}
+		                	$('#modal-client').modal('show')		                	
 		                },
 		                error: function(xhr, textStatus, thrownError) {
 							$('#loading-app').modal('hide');
@@ -134,8 +139,17 @@
 							$("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");				
 		                }
 		            });											
-				}
+				}				
+			};
+
+
+			$("#cliente_cedula").change(function() {
+				event_client();	
 			});
+
+			$('#customer-glyphicon').click(function() {
+	            event_client();
+	        });
 
         	$("#fecha").datepicker({
 				changeMonth: true,
@@ -151,38 +165,36 @@
 
 			$('#btn-close-modal-client').on('click', function(){
 				$('#modal-client').modal('hide')
-			});
-			
-		    $('#form-add-customer').on('submit', function(){ 							 
-		       	var url = root_url + 'business/customers';    		
-				$.ajax({
-	                type: 'post',
-	                cache: false,
-	                dataType: 'json',
-	                data: $('#form-add-customer').serialize(),
-	                url : url,
-	                beforeSend: function() { 
-						$("#validation-errors-client").hide().empty();	                                   
-	                },
-	                success: function(data) {
-	                    if(data.success == false) {
-	                        $("#validation-errors-client").append(data.errors);
-	                        $("#validation-errors-client").show();
-	                    } else {
-	                    	$('#modal-client').modal('hide');
-	                    	$('#cliente').val(data.customer.id);
-	                    	$('#cliente_cedula').val(data.customer.cedula);
-	                    	$('#cliente_nombre').val(data.customer.nombre);
-	                    }
-	                },
-	                error: function(xhr, textStatus, thrownError) {
-						$('#modal-client').modal('hide');
-						$('#error-app').modal('show');						
-						$("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");				
-	                }
-	            });
-		        return false;
-		    }); 
+			});	
+
+			$('#form-add-contract').on('submit', function(event){                             
+                var url = $(this).attr('action');
+                event.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    cache: false,
+                    dataType: 'json',
+                    data: $('#form-add-contract').serialize(),
+                    url : url,
+                    beforeSend: function() { 
+                        $("#validation-errors-contract").hide().empty();                                     
+                    },
+                    success: function(data) {
+                        if(data.success == false) {
+                            $("#validation-errors-contract").append(data.errors);
+                            $("#validation-errors-contract").show();
+                        }else{
+                        	window.location="{{URL::to('business/contracts/"+data.contract.id+"')}}";
+                        }
+                    },
+                    error: function(xhr, textStatus, thrownError) {
+                        $('#modal-client').modal('hide');
+                        $('#error-app').modal('show');                      
+                        $("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");               
+                    }
+                });
+                return false;
+            });				     
 		});
 	</script>
 

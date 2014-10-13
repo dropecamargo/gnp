@@ -17,13 +17,15 @@ class CreateContractsTable extends Migration {
             $table->increments('id');   
             $table->integer('numero')->unsigned()->unique();
             $table->integer('cliente')->unsigned();
+            $table->integer('vendedor')->unsigned();
             $table->date('fecha');
            	$table->float('valor');
            	$table->integer('cuotas');
            	$table->date('primera');           	
 			$table->timestamps();
 
-        	$table->foreign('cliente')->references('id')->on('clientes')->onDelete('restrict');        	           	
+        	$table->foreign('cliente')->references('id')->on('clientes')->onDelete('restrict');
+        	$table->foreign('vendedor')->references('id')->on('empleados')->onDelete('restrict');        	           	
         });
 	}
 

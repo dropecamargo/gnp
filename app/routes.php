@@ -35,8 +35,12 @@ Route::group(array('before' => 'auth'), function()
 
 	// Rutas modulo contratos 
 	Route::resource('business/contracts', 'Business_ContractsController');
-
+	Route::post('business/contracts/find', 'Business_ContractsController@find');
+	
 	// Rutas modulo clientes 
 	Route::resource('business/customers', 'Business_CustomersController');
 	Route::post('business/customers/find', 'Business_CustomersController@find');
+
+	// Rutas modulo recibos 
+	Route::resource('business/payments', 'Business_PaymentsController');	
 });

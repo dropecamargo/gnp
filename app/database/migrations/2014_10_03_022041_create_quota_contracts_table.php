@@ -14,15 +14,16 @@ class CreateQuotaContractsTable extends Migration {
 	{
 		Schema::create('cuotas',function($table){
 			$table->engine = 'InnoDB';
+			$table->increments('id');
             $table->integer('contrato')->unsigned();
             $table->integer('cuota')->unsigned();
             $table->date('fecha');
            	$table->float('valor');
           	$table->float('saldo');
-			$table->timestamps();
-
+          	$table->timestamps();
+          	
         	$table->foreign('contrato')->references('id')->on('contratos')->onDelete('restrict');        	           	
- 			$table->primary(array('contrato', 'cuota'));       
+ 			$table->unique(array('contrato', 'cuota'));       
         });
 	}
 

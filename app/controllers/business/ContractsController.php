@@ -9,14 +9,9 @@ class Business_ContractsController extends \BaseController {
 	 */
 	public function index()
 	{
-		$data["contracts"] = $contracts = Contract::paginate();		
-		#$data["contracts"] = DB::table('contratos')
-		#					->join('clientes','clientes.id','=','contratos.cliente')
-		#					->orderBy('contratos.id')
-		#					->select('contratos.*',
-		#						'clientes.cedula as cliente_cedula',
-		#						'clientes.nombre as cliente_nombre' )
-		#					->paginate(1);
+		$query = Contract::join('clientes', 'cliente', '=', 'clientes.id')
+			->join('empleados', 'vendedor', '=', 'empleados.id');
+		$data["contracts"] = $contracts = $query->paginate(6, array('contratos.*','clientes.nombre as cliente_nombre','empleados.nombre as vendedor_nombre'));
 		if(Request::ajax())
         {
             //Comments pagination
@@ -36,8 +31,8 @@ class Business_ContractsController extends \BaseController {
 	public function create()
 	{
 		$contract = new Contract;
-		$customer = new Customer;
-        return View::make('business/contracts/form')->with($arrayName = array('contract' => $contract, 'customer' => $customer));
+        $vendors = Employee::whereRaw('cargo = ? and activo = true', array('V'))->lists('nombre', 'id');
+        return View::make('business/contracts/form')->with($arrayName = array('contract' => $contract, 'vendors' => $vendors));
 	}
 
 
@@ -48,13 +43,53 @@ class Business_ContractsController extends \BaseController {
 	 */
 	public function store()
 	{
-		$contract = new Contract;
-        $data = Input::all();                
-        if ($contract->validAndSave($data)){
-            return Redirect::route('business.contracts.index');
-        }else{
-            return Redirect::route('business.contracts.create')->withInput()->withErrors($contract->errors);
-        }
+        $data = Input::all();
+	    $contract = new Contract;
+      	
+      	if ($contract->isValid($data)){      		        	
+        	DB::beginTransaction();	
+        	try{
+        		$contract->fill($data);	        			
+        		$contract->save();
+        		
+        		// Generar cuotas
+        		$fecha_cuota = $contract->primera;        
+		        $valor_cuota = 0;
+		        @$valor_cuota = $contract->valor/$contract->cuotas;
+
+		        for($i=1; $i <= $contract->cuotas; $i++){
+		            if (!$fecha_cuota){                
+		                DB::rollback();
+						return Response::json(array('success' => false, 'errors' => " Error recuperando fecha cuota - Consulte al administrador."));
+		            }
+		            $fecha_cuota = $contract->suma_fechas($fecha_cuota);
+		            DB::table('cuotas')->insert(
+		                array(
+		                    'contrato' => $contract->id, 
+		                    'cuota' => $i,
+		                    'fecha' => $fecha_cuota,
+		                    'valor' => number_format(round($valor_cuota), 2, '.', ''),
+		                    'saldo' => number_format(round($valor_cuota), 2, '.', '')
+		                )
+		            );
+		        }			       
+        	}catch(\Exception $exception){
+			    DB::rollback();
+				return Response::json(array('success' => false, 'errors' =>  "$exception - Consulte al administrador."));
+			}
+			DB::commit();
+        	if(Request::ajax()) {        	    
+        	    return Response::json(array('success' => true, 'contract' => $contract));
+        	}
+        	return Redirect::route('business.contracts.index');        	
+      	}else{
+      		if(Request::ajax()) {
+        		$data["errors"] = $contract->errors;
+            	$errors = View::make('errors', $data)->render();
+        		return Response::json(array('success' => false, 'errors' => $errors));
+			} 
+            return Redirect::route('business.contracts.create')->withInput()->withErrors($contract->errors);	
+      	}
 	}
 
 
@@ -66,11 +101,21 @@ class Business_ContractsController extends \BaseController {
 	 */
 	public function show($id)
 	{
-		$contract = Contract::find($id);
+		$contract = Contract::find($id);		
         if (is_null($contract)) {
             App::abort(404);   
         } 
-        return View::make('business/contracts/show', array('contract' => $contract));
+        $customer = Customer::find($contract->cliente);
+        if (is_null($customer)) {
+            App::abort(404);   
+        }
+        $vendor = Employee::find($contract->vendedor);
+        if (is_null($vendor)) {
+            App::abort(404);   
+        }
+        $quotas = Quota::where('contrato', '=', $contract->id)->get();
+        return View::make('business/contracts/show', array('contract' => $contract, 
+        	'customer' => $customer, 'vendor' => $vendor, 'quotas' => $quotas));
 	}
 
 
@@ -109,5 +154,19 @@ class Business_ContractsController extends \BaseController {
 		//
 	}
 
-
+	public function find()
+    {
+		$contrato = Input::get('contrato');
+		$query = "SELECT contratos.id, clientes.nombre as cliente_nombre, SUM(cuotas.saldo) as contrato_saldo 
+			from contratos 
+			inner join clientes on contratos.cliente = clientes.id 
+			inner join cuotas on cuotas.contrato = contratos.id 
+			where numero = $contrato 
+			group by id, cliente_nombre";
+    	$contract = DB::select($query);       	        				
+		if(count($contract)>=1){			
+			return Response::json(array('success' => true, 'contract' => $contract[0]));
+		}
+		return Response::json(array('success' => false));        
+	}
 }
