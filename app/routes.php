@@ -42,5 +42,9 @@ Route::group(array('before' => 'auth'), function()
 	Route::post('business/customers/find', 'Business_CustomersController@find');
 
 	// Rutas modulo recibos 
-	Route::resource('business/payments', 'Business_PaymentsController');	
+	Route::resource('business/payments', 'Business_PaymentsController');
+
+	// Rutas modulo reportes 
+	Route::resource('business/reports', 'Business_ReportsController');
+	Route::post('business/reports/carteraedades', 'Business_ReportsController@carteraedades');	
 });

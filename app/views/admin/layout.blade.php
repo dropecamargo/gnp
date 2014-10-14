@@ -61,6 +61,7 @@
             <li>{{ HTML::link('/business/employees', 'Empleados') }}</li>
             <li>{{ HTML::link('/business/contracts', 'Contratos') }}</li>
             <li>{{ HTML::link('/business/payments', 'Recibos de pago') }}</li>
+            <li>{{ HTML::link('/business/reports', 'Reportes') }}</li>
           </ul>
         </div>
         
