@@ -7,7 +7,8 @@
 			<th>Numero</th>
 			<th>Fecha</th>
 			<th>Cliente</th>
-			<th>Vendedor</th>			
+			<th>Vendedor</th>
+			<th>Saldo</th>			
 			<th>&nbsp;</th>
 		</tr>	
 	</thead>     	    	
@@ -18,6 +19,7 @@
 				<td>{{ $contract->fecha }}</td>
 				<td>{{ $contract->cliente_nombre }}</td>
 				<td>{{ $contract->vendedor_nombre }}</td>
+				<td><?php echo number_format(round($contract->saldo,-1), 2,'.',',' ) ?></td>
 				<td nowrap="nowrap">					
 					<a href="{{ route('business.contracts.show', $contract->id) }}" class="btn btn-info">Ver</a>
 				</td>

@@ -35,7 +35,7 @@
     <div class="row">
         <div class="form-group col-md-3">
             <label>Valor</label>
-            <div>{{ $contract->valor }}</div>
+            <div><?php echo number_format($contract->valor, 2,'.',',' ) ?></div>
         </div>
         <div class="form-group col-md-3">
         	<label>Cuotas</label>
@@ -77,8 +77,8 @@
                 <tr>
                     <td>{{ $quota->cuota }}</td>
                     <td>{{ $quota->fecha }}</td>
-                    <td>{{ $quota->valor }}</td>
-                    <td>{{ $quota->saldo }}</td>
+                    <td><?php echo number_format(round($quota->valor), 2,'.',',' ) ?></td>
+                    <td><?php echo number_format(round($quota->saldo), 2,'.',',' ) ?></td>
                 </tr>
             @endforeach
         </tbody>

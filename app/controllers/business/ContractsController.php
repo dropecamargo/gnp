@@ -9,9 +9,7 @@ class Business_ContractsController extends \BaseController {
 	 */
 	public function index()
 	{
-		$query = Contract::join('clientes', 'cliente', '=', 'clientes.id')
-			->join('empleados', 'vendedor', '=', 'empleados.id');
-		$data["contracts"] = $contracts = $query->paginate(6, array('contratos.*','clientes.nombre as cliente_nombre','empleados.nombre as vendedor_nombre'));
+		$data['contracts'] = $contracts = Contract::getData();
 		if(Request::ajax())
         {
             //Comments pagination
@@ -165,6 +163,7 @@ class Business_ContractsController extends \BaseController {
 			group by id, cliente_nombre";
     	$contract = DB::select($query);       	        				
 		if(count($contract)>=1){			
+			$contract[0]->contrato_saldo = round($contract[0]->contrato_saldo,-1);
 			return Response::json(array('success' => true, 'contract' => $contract[0]));
 		}
 		return Response::json(array('success' => false));        

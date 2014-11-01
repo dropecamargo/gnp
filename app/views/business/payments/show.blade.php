@@ -50,7 +50,7 @@
         </div>
         <div class="form-group col-md-3">
             <label>Valor</label>
-            <div>{{ $payment->valor }}</div>
+            <div><?php echo number_format($payment->valor, 2,'.',',' ) ?></div>
         </div>        
     </div>
 	<div class="row">

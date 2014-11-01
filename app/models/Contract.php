@@ -12,6 +12,8 @@ class Contract extends Eloquent {
 
 	public $errors;
 
+    protected $perPage = 6;
+
 	public function isValid($data)
     {
         $rules = array(            
@@ -53,4 +55,26 @@ class Contract extends Eloquent {
         $nuevafecha=date("Y-m-d",$nueva);
         return ($nuevafecha);
     }
+
+    public static function getData()
+    {
+        $query = Contract::query();      
+        $query->join('clientes', 'cliente', '=', 'clientes.id');
+        $query->join('empleados', 'vendedor', '=', 'empleados.id');
+        $query->join('cuotas', 'contratos.id', '=', 'cuotas.contrato');
+        $query->select('contratos.*','clientes.nombre as cliente_nombre','empleados.nombre as vendedor_nombre',DB::raw('SUM(cuotas.saldo) as saldo'));        
+        if (Input::has("numero")) {
+            $query->where('contratos.numero', Input::get("numero"));
+        }
+        if (Input::has("cliente")) {         
+            $query->where('clientes.id', Input::get("cliente")); 
+        }        
+        $query->groupBy('contratos.id');
+        if (Input::has("saldo")) {         
+            $query->havingRaw('saldo > 0'); 
+        }
+        $query->orderby('contratos.fecha', 'ASC');
+        return $query->paginate();
+    }
+    
 }

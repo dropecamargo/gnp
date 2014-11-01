@@ -19,7 +19,7 @@
 				<td>{{ $payment->fecha }}</td>
 				<td>{{ $payment->contrato }}</td>
 				<td>{{ $payment->cliente_nombre }}</td>
-				<td>{{ $payment->valor }}</td>
+				<td><?php echo number_format($payment->valor, 2,'.',',' ) ?></td>
 				<td nowrap="nowrap">					
 					<a href="{{ route('business.payments.show', $payment->id) }}" class="btn btn-info">Ver</a>
 				</td>
