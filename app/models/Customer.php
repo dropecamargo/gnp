@@ -54,6 +54,20 @@ class Customer extends Eloquent {
         return false;
     }    
 
+    public static function getData()
+    {
+        $query = Customer::query();      
+        $query->select('clientes.*');        
+        if (Input::has("cliente_cedula")) {
+            $query->where('clientes.cedula', Input::get("cliente_cedula"));
+        }
+        if (Input::has("cliente_nombre")) {          
+            $query->where('clientes.nombre', 'like', '%'.Input::get("cliente_nombre").'%');
+        }        
+        $query->orderby('clientes.nombre', 'ASC');
+        return $query->paginate();
+    }
+
     public function setNombreAttribute($name){
 		$this->attributes['nombre'] = strtoupper($name);
 	}

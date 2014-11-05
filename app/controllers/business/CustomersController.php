@@ -9,7 +9,14 @@ class Business_CustomersController extends \BaseController {
 	 */
 	public function index()
 	{
-		//
+		$data['customers'] = $customers = Customer::getData();
+		if(Request::ajax())
+        {
+            $data["links"] = $customers->links();
+            $customers = View::make('business/customers/customers', $data)->render();
+            return Response::json(array('html' => $customers));
+        }
+        return View::make('business/customers/list')->with($data);
 	}
 
 
@@ -57,7 +64,11 @@ class Business_CustomersController extends \BaseController {
 	 */
 	public function show($id)
 	{
-		//
+		$customer = Customer::find($id);		
+        if (is_null($customer)) {
+            App::abort(404);   
+        } 
+   		return View::make('business/customers/show', array('customer' => $customer));
 	}
 
 
@@ -69,7 +80,11 @@ class Business_CustomersController extends \BaseController {
 	 */
 	public function edit($id)
 	{
-		//
+		$customer = Customer::find($id);
+        if (is_null ($customer)) {
+            App::abort(404);
+        }
+        return View::make('business/customers/form')->with('customer', $customer);
 	}
 
 

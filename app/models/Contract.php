@@ -76,5 +76,4 @@ class Contract extends Eloquent {
         $query->orderby('contratos.fecha', 'ASC');
         return $query->paginate();
     }
-    
 }
