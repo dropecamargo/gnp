@@ -26,7 +26,7 @@
     		{{ Form::checkbox('saldo', 'value') }}
         </div>
  	</div> 	
- 	<div class="row" align="center">
+ 	<div class="row" align="center"> 
 		<button type="submit" class="btn btn-primary">Buscar</button>
 		{{Form::button('Limpiar', array('class'=>'btn btn-primary', 'id' => 'button-clear-search-contracts' ));}} 
 		<a href="{{ route('business.contracts.create') }}" class="btn btn-primary">Nuevo Contrato</a>			
