@@ -33,6 +33,9 @@ Route::group(array('before' => 'auth'), function()
 	// Rutas modulo empleados 
 	Route::resource('business/employees', 'Business_EmployeesController');
 
+	// Rutas modulo productos 
+	Route::resource('business/products', 'Business_ProductsController');
+
 	// Rutas modulo contratos 
 	Route::resource('business/contracts', 'Business_ContractsController');
 	Route::post('business/contracts/find', 'Business_ContractsController@find');

@@ -60,6 +60,7 @@
             <li>{{ HTML::link('/admin/users', 'Usuarios') }}</li>
             <li>{{ HTML::link('/business/employees', 'Empleados') }}</li>
             <li>{{ HTML::link('/business/customers', 'Clientes') }}</li>
+            <li>{{ HTML::link('/business/products', 'Productos') }}</li>
             <li>{{ HTML::link('/business/contracts', 'Contratos') }}</li>
             <li>{{ HTML::link('/business/payments', 'Recibos de pago') }}</li>
             <li>{{ HTML::link('/business/reports', 'Reportes') }}</li>

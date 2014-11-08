@@ -1,33 +1,25 @@
 <div align="center">
-	{{ $contracts->links() }}
+	{{ $products->links() }}
 </div>
-<table id="table-search-contracts" class="table table-striped">
+<table id="table-search-products" class="table table-striped">
 	<thead>
 		<tr>
-			<th>Numero</th>
-			<th>Fecha</th>
-			<th>Cliente</th>
-			<th>Vendedor</th>
-			<th>Saldo</th>			
+			<th>Nombre</th>		
 			<th>&nbsp;</th>
 		</tr>	
 	</thead>     	    	
 	<tbody>
-		@foreach ($contracts as $contract)
+		@foreach ($products as $product)
 			<tr>
-				<td>{{ $contract->numero }}</td>
-				<td>{{ $contract->fecha }}</td>
-				<td>{{ $contract->cliente_nombre }}</td>
-				<td>{{ $contract->vendedor_nombre }}</td>
-				<td><?php echo number_format(round($contract->saldo,-1), 2,'.',',' ) ?></td>
+				<td>{{ $product->nombre }}</td>
 				<td nowrap="nowrap">					
-					<a href="{{ route('business.contracts.show', $contract->id) }}" class="btn btn-info">Ver</a>
+					<a href="{{ route('business.products.show', $product->id) }}" class="btn btn-info">Ver</a>
+					<a href="{{ route('business.products.edit', $product->id) }}" class="btn btn-primary">Editar</a>
 				</td>
 			</tr>
-		@endforeach
+		@endforeach	
 	</tbody>
 </table> 
-
 <script type="text/javascript">
 	$(document).ready(function(){	
 		$(".pagination a").click(function()
@@ -36,7 +28,7 @@
 			$.ajax({
 				url: url,
 				type: "GET",
-				data: $('#form-search-contracts').serialize(),
+				data: $('#form-search-produts').serialize(),
 				datatype: "html",
 				beforeSend: function() {
 					$('#loading-app').modal('show');
@@ -44,7 +36,7 @@
 			})
 			.done(function(data) {				
 				$('#loading-app').modal('hide');
-				$("#contracts").empty().html(data.html);
+				$("#products").empty().html(data.html);
 			})
 			.fail(function(jqXHR, ajaxOptions, thrownError)
 			{
