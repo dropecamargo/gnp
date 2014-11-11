@@ -34,6 +34,7 @@
 			$.ajax({
 				url: url,
 				type: "GET",
+				data: $('#form-search-customers').serialize(),
 				datatype: "html",
 				beforeSend: function() {
 					$('#loading-app').modal('show');

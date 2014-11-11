@@ -42,6 +42,10 @@
             <div>{{ $contract->cuotas }}</div>
         </div> 
         <div class="form-group col-md-3">
+            <label>Periodicidad de pago (días)</label>
+            <div>{{ $contract->periodicidad }}</div>
+        </div> 
+        <div class="form-group col-md-3">
             <label>Primera cuota</label>
             <div>{{ $contract->primera }}</div>
         </div>        

@@ -60,7 +60,6 @@ class Business_ContractsController extends \BaseController {
 		                DB::rollback();
 						return Response::json(array('success' => false, 'errors' => " Error recuperando fecha cuota - Consulte al administrador."));
 		            }
-		            $fecha_cuota = $contract->suma_fechas($fecha_cuota);
 		            DB::table('cuotas')->insert(
 		                array(
 		                    'contrato' => $contract->id, 
@@ -70,6 +69,7 @@ class Business_ContractsController extends \BaseController {
 		                    'saldo' => number_format(round($valor_cuota), 2, '.', '')
 		                )
 		            );
+		            $fecha_cuota = $contract->suma_fechas($fecha_cuota, $contract->periodicidad);
 		        }			       
         	}catch(\Exception $exception){
 			    DB::rollback();

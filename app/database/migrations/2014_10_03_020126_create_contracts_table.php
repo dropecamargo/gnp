@@ -21,6 +21,7 @@ class CreateContractsTable extends Migration {
             $table->date('fecha');
            	$table->float('valor');
            	$table->integer('cuotas');
+           	$table->integer('periodicidad');
            	$table->date('primera');           	
 			$table->timestamps();
 

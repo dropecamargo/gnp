@@ -8,7 +8,7 @@ class Contract extends Eloquent {
 	 */
 	protected $table = 'contratos';
 
-	protected $fillable = array('numero', 'fecha', 'cliente', 'vendedor', 'valor', 'cuotas', 'primera');
+	protected $fillable = array('numero', 'fecha', 'cliente', 'vendedor', 'valor', 'cuotas', 'periodicidad', 'primera');
 
 	public $errors;
 
@@ -22,7 +22,8 @@ class Contract extends Eloquent {
             'cliente_cedula' => 'required|min:5|max:15',
             'cliente' => 'required|numeric',
             'vendedor' => 'required|numeric|min:1',
-            'cuotas' => 'required|min:1|max:10|regex:[^[0-9]*$]|numeric',
+            'periodicidad' => 'required|min:1|max:30|regex:[^[0-9]*$]|numeric',
+            'cuotas' => 'required|min:1|regex:[^[0-9]*$]|numeric',
             'primera' => 'required|date_format:Y-m-d',
             'valor' => 'required|min:1|regex:[^[0-9]*$]'
         );
@@ -42,8 +43,7 @@ class Contract extends Eloquent {
 
     }
 
-    public function suma_fechas($fecha){
-        $ndias = 30;
+    public function suma_fechas($fecha,$ndias){
         if (preg_match("/[0-9]{1,2}\/[0-9]{1,2}\/([0-9][0-9]){1,2}/",$fecha)) {
             list($ao,$mes,$dia) = explode("/", $fecha);
         }else if (preg_match("/[0-9]{1,2}-[0-9]{1,2}-([0-9][0-9]){1,2}/",$fecha)) {
@@ -66,9 +66,12 @@ class Contract extends Eloquent {
         if (Input::has("numero")) {
             $query->where('contratos.numero', Input::get("numero"));
         }
-        if (Input::has("cliente")) {         
-            $query->where('clientes.id', Input::get("cliente")); 
-        }        
+        if (Input::has("cliente_cedula")) {         
+            $query->where('clientes.cedula', Input::get("cliente_cedula")); 
+        }  
+        if (Input::has("cliente_nombre")) {          
+            $query->where('clientes.nombre', 'like', '%'.Input::get("cliente_nombre").'%');
+        }       
         $query->groupBy('contratos.id');
         if (Input::has("saldo")) {         
             $query->havingRaw('saldo > 0'); 

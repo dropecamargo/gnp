@@ -61,10 +61,14 @@
         <div class="form-group col-md-3">
             {{ Form::label('valor', 'Valor') }}
             {{ Form::text('valor', null, array('placeholder' => 'Valor', 'class' => 'form-control')) }}        
-        </div>
+        </div> 
         <div class="form-group col-md-3">
             {{ Form::label('cuotas', 'Cuotas') }}
             {{ Form::text('cuotas', null, array('placeholder' => 'Número de cuotas', 'class' => 'form-control')) }}        
+        </div>
+        <div class="form-group col-md-3">
+            {{ Form::label('periodicidad', 'Periodicidad de pago (días)') }}
+            {{ Form::text('periodicidad', null, array('placeholder' => 'Periodicidad', 'class' => 'form-control')) }}        
         </div> 
         <div class="form-group col-md-3">
             {{ Form::label('primera', 'Primera cuota') }}
