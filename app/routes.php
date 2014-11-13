@@ -49,5 +49,8 @@ Route::group(array('before' => 'auth'), function()
 
 	// Rutas modulo reportes 
 	Route::resource('business/reports', 'Business_ReportsController');
-	Route::post('business/reports/carteraedades', 'Business_ReportsController@carteraedades');	
+	Route::post('business/reports/carteraedades', 'Business_ReportsController@carteraedades');
+
+	// Rutas session list UTIL 
+	Route::resource('util/cart', 'SessionCartController');	
 });

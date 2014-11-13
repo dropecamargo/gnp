@@ -1,5 +1,9 @@
 @extends ('admin/layout')
 
+@section('scripts')
+	{{ HTML::script("util/list.js") }}
+@stop
+
 <?php
 	// Data contract
     if ($contract->exists):
@@ -26,7 +30,6 @@
   	<div id="validation-errors-contract" style="display: none"></div>
 
 	{{ Form::model($contract, $form_data, array('role' => 'form')) }}
-    
 	<div class="row">
         <div class="form-group col-md-3">
             {{ Form::label('numero', 'Número') }}
@@ -49,13 +52,11 @@
         <div class="form-group col-md-6">        	
             {{ Form::label('cliente_nombre', 'Nombre') }}
             {{ Form::text('cliente_nombre', null, array('class' => 'form-control', 'disabled' => 'disabled')) }}        
-        </div>        
-    </div>
-	<div class="row">
-    	<div class="form-group col-md-6">
-            {{ Form::label('vendedor', 'Vendedor') }}
-            {{ Form::select('vendedor', array('0' => 'Seleccione vendedor') + $vendors ,null, array('class' => 'form-control')) }}
         </div>
+        <div class="form-group col-md-3">
+            {{ Form::label('vendedor', 'Vendedor') }}
+            {{ Form::select('vendedor', array('0' => 'Seleccione') + $vendors ,null, array('class' => 'form-control')) }}
+        </div>        
     </div>
     <div class="row">
         <div class="form-group col-md-3">
@@ -67,17 +68,43 @@
             {{ Form::text('cuotas', null, array('placeholder' => 'Número de cuotas', 'class' => 'form-control')) }}        
         </div>
         <div class="form-group col-md-3">
-            {{ Form::label('periodicidad', 'Periodicidad de pago (días)') }}
-            {{ Form::text('periodicidad', null, array('placeholder' => 'Periodicidad', 'class' => 'form-control')) }}        
+            {{ Form::label('periodicidad', 'Periodicidad de pago') }}
+            {{ Form::text('periodicidad', null, array('placeholder' => 'Periodicidad (días)', 'class' => 'form-control')) }}        
         </div> 
         <div class="form-group col-md-3">
             {{ Form::label('primera', 'Primera cuota') }}
             {{ Form::text('primera', null, array('placeholder' => 'yyyy-mm-dd', 'class' => 'form-control')) }}        
         </div>        
     </div>
-	{{ Form::button($action . ' contrato', array('type' => 'submit', 'class' => 'btn btn-success')) }}        
-	{{ Form::close() }}
-	 
+    {{ Form::close() }}
+
+    <div align="center">
+    	{{ Form::button($action . ' contrato', array('type' => 'button','class' => 'btn btn-success', 'id' => 'btn-submit-contract' )) }}        
+	</div>
+    {{ Form::open(array('route' => 'util.cart.store', 'method' => 'POST', 'id' => 'form-cart-products-contract')) }}
+	<div class="row">
+		{{ Form::hidden('key', Contract::$key_cart_products) }}
+		{{ Form::hidden('template', Contract::$template_cart_products) }}
+		<div class="form-group col-md-2"></div>
+        <div class="form-group col-md-5">
+            {{ Form::label('producto', 'Producto') }}
+        	{{ Form::select('producto', array('0' => 'Seleccione') + $products ,null, array('class' => 'form-control')) }}
+        </div>
+        <div class="form-group col-md-2">
+            {{ Form::label('cantidad', 'Cantidad') }}
+        	{{ Form::text('cantidad', null, array('placeholder' => 'Cantidad', 'class' => 'form-control')) }}        
+        </div>
+        <div class="form-group col-md-1">
+        	<label><span>&nbsp;</span></label>
+        	<button type="button" id="btn-contract-add-product" class="btn btn-default btn-md">
+				<span class="glyphicon glyphicon-plus-sign"></span>
+			</button>
+        </div>
+        <div class="form-group col-md-2"></div>
+    </div>
+    {{ Form::close() }}
+    <div id="contract-list-products" style="display:none;"></div>
+	
 	<div class="modal fade" id="modal-client" data-backdrop="static" data-keyboard="false" aria-hidden="true">
 		<div class="modal-dialog modal-lg">
 			<div class="modal-content">
@@ -95,7 +122,7 @@
 			</div>
 		</div>
 	</div>
-
+	
 	<script type="text/javascript">
 		$(function() {
 			var root_url = "<?php echo Request::root(); ?>/";
@@ -198,7 +225,15 @@
                     }
                 });
                 return false;
-            });				     
+            });	
+			
+			$("#btn-submit-contract").click(function() {
+				$("#form-add-contract").submit();
+			});	
+
+			$('#btn-contract-add-product').on('click', function(){
+				utilList.store($('#form-cart-products-contract').serialize())
+			});			     
 		});
 	</script>
 

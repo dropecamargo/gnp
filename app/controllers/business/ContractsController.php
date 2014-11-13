@@ -8,7 +8,7 @@ class Business_ContractsController extends \BaseController {
 	 * @return Response
 	 */
 	public function index()
-	{
+	{	
 		$data['contracts'] = $contracts = Contract::getData();
 		if(Request::ajax())
         {
@@ -30,7 +30,8 @@ class Business_ContractsController extends \BaseController {
 	{
 		$contract = new Contract;
         $vendors = Employee::whereRaw('cargo = ? and activo = true', array('V'))->lists('nombre', 'id');
-        return View::make('business/contracts/form')->with($arrayName = array('contract' => $contract, 'vendors' => $vendors));
+    	$products = Product::lists('nombre', 'id');
+        return View::make('business/contracts/form')->with($arrayName = array('contract' => $contract, 'vendors' => $vendors, 'products' => $products));
 	}
 
 

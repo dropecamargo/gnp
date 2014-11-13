@@ -14,6 +14,10 @@ class Contract extends Eloquent {
 
     protected $perPage = 6;
 
+    public static $key_cart_products = 'key_cart_contract_products';
+
+    public static $template_cart_products = 'business/contracts/products';
+
 	public function isValid($data)
     {
         $rules = array(            

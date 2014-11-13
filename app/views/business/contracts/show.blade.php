@@ -30,7 +30,11 @@
         <div class="form-group col-md-6">
             <label>Nombre</label>
             <div>{{ $customer->nombre }}</div>
-        </div>        
+        </div> 
+        <div class="form-group col-md-3">
+            <label>Vendedor</label>
+            <div>{{ $vendor->nombre }}</div>
+        </div>       
     </div>
     <div class="row">
         <div class="form-group col-md-3">
@@ -42,19 +46,13 @@
             <div>{{ $contract->cuotas }}</div>
         </div> 
         <div class="form-group col-md-3">
-            <label>Periodicidad de pago (días)</label>
-            <div>{{ $contract->periodicidad }}</div>
+            <label>Periodicidad de pago</label>
+            <div>{{ $contract->periodicidad }} días</div>
         </div> 
         <div class="form-group col-md-3">
             <label>Primera cuota</label>
             <div>{{ $contract->primera }}</div>
         </div>        
-    </div>
-    <div class="row">
-        <div class="form-group col-md-6">
-            <label>Vendedor</label>
-            <div>{{ $vendor->nombre }}</div>
-        </div>
     </div>
     <div class="row">
         <div class="form-group col-md-4">
