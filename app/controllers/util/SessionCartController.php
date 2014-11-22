@@ -9,6 +9,12 @@ class SessionCartController extends \BaseController {
 	 */
 	public function store()
 	{
+		if(!Input::has('_key')) {
+			return Response::json(array('success' => false, 'error' => 'Debe existir [_key] para agregar item.'));	
+		}
+		if(!Input::has('_template')) {
+			return Response::json(array('success' => false, 'error' => 'Debe existir [_template] para agregar item.'));	
+		}
 		$list = SessionCart::addItem(Input::all());
 		return Response::json(array('success' => true, 'list' => $list));
 	}
@@ -46,6 +52,13 @@ class SessionCartController extends \BaseController {
 	 */
 	public function destroy($id)
 	{
-		return Response::json(array('success' => true, 'list' => $id));	
+		if(!Input::has('_key')) {
+			return Response::json(array('success' => false, 'error' => 'Debe existir [_key] para eliminar item.'));	
+		}
+		if(!Input::has('_template')) {
+			return Response::json(array('success' => false, 'error' => 'Debe existir [_template] para eliminar item.'));	
+		}
+		$list = SessionCart::delItem($id, Input::get('_key'), Input::get('_template'));
+		return Response::json(array('success' => true, 'list' => $list));	
 	}
 }

@@ -51,6 +51,10 @@
         <div class="form-group col-md-3">
             <label>Valor</label>
             <div><?php echo number_format($payment->valor, 2,'.',',' ) ?></div>
+        </div> 
+        <div class="form-group col-md-3">
+            <label>Proximo pago</label>
+            <div>{{ $payment->proxima }}</div>
         </div>        
     </div>
 	<div class="row">

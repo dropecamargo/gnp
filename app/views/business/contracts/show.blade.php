@@ -64,8 +64,27 @@
             <div>{{ $contract->updated_at }}</div>
         </div>  
     </div>
-
-    <table id="table-employees" class="table table-striped">
+    @if(count($products) > 0) 
+        <table id="table-employees" class="table table-striped" style="width:80%" align="center">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Devolución </th>
+                </tr>   
+            </thead>                
+            <tbody>
+                @foreach ($products as $product)
+                    <tr>
+                        <td>{{ $product->nombre }}</td>
+                        <td>{{ $product->cantidad }}</td>
+                        <td>{{ $product->devolucion }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif 
+    <table id="table-employees" class="table table-striped" style="width:90%" align="center">
         <thead>
             <tr>
                 <th>Cuota</th>

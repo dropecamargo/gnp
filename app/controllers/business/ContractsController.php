@@ -31,6 +31,8 @@ class Business_ContractsController extends \BaseController {
 		$contract = new Contract;
         $vendors = Employee::whereRaw('cargo = ? and activo = true', array('V'))->lists('nombre', 'id');
     	$products = Product::lists('nombre', 'id');
+        // Elimino datos carrito de session
+        Session::forget(Contract::$key_cart_products);
         return View::make('business/contracts/form')->with($arrayName = array('contract' => $contract, 'vendors' => $vendors, 'products' => $products));
 	}
 
@@ -71,8 +73,22 @@ class Business_ContractsController extends \BaseController {
 		                )
 		            );
 		            $fecha_cuota = $contract->suma_fechas($fecha_cuota, $contract->periodicidad);
-		        }			       
-        	}catch(\Exception $exception){
+		        }
+
+		        // Ingresando productos 
+		        $products = Session::get(Contract::$key_cart_products);
+		        if(count($products) > 0){
+			        foreach ($products as $product) {
+			        	$product = (object) $product;
+			        	$contract_product = new ContractProduct();
+			        	$contract_product->contrato = $contract->id;
+			        	$contract_product->producto = $product->producto;
+			        	$contract_product->cantidad = $product->cantidad;
+			        	$contract_product->devolucion = 0;
+			        	$contract_product->save();
+			        }	
+		        } 
+		    }catch(\Exception $exception){
 			    DB::rollback();
 				return Response::json(array('success' => false, 'errors' =>  "$exception - Consulte al administrador."));
 			}
@@ -113,8 +129,14 @@ class Business_ContractsController extends \BaseController {
             App::abort(404);   
         }
         $quotas = Quota::where('contrato', '=', $contract->id)->get();
+
+        $products = ContractProduct::select('contratop.*','productos.*')
+        	->join('productos', 'productos.id', '=', 'contratop.producto')
+        	->where('contrato', '=', $contract->id)->get();
+
         return View::make('business/contracts/show', array('contract' => $contract, 
-        	'customer' => $customer, 'vendor' => $vendor, 'quotas' => $quotas));
+        	'customer' => $customer, 'vendor' => $vendor, 'quotas' => $quotas, 
+        	'products' => $products));
 	}
 
 

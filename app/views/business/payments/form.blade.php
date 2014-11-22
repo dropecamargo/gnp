@@ -57,6 +57,12 @@
         <div class="form-group col-md-3">
             {{ Form::label('valor', 'Valor') }}
             {{ Form::text('valor', null, array('placeholder' => 'Valor', 'class' => 'form-control')) }}        
+        </div>
+        <div class="form-group col-md-3">
+            {{ Form::label('proxima', 'Proximo pago') }}
+            <div class="input-append date"> 
+                {{ Form::text('proxima', null, array('placeholder' => 'yyyy-mm-dd', 'class' => 'form-control')) }}        
+            </div>
         </div>        
 	</div>
 
@@ -69,6 +75,12 @@
             var root_url = "<?php echo Request::root(); ?>/";
 
             $("#fecha").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "yy-mm-dd"              
+            })
+
+            $("#proxima").datepicker({
                 changeMonth: true,
                 changeYear: true,
                 dateFormat: "yy-mm-dd"              
@@ -133,30 +145,44 @@
 
             $('#form-add-payment').on('submit', function(event){                             
                 var url = $(this).attr('action');
-                event.preventDefault();                
-                $.ajax({
-                    type: 'POST',
-                    cache: false,
-                    dataType: 'json',
-                    data: $('#form-add-payment').serialize(),
-                    url : url,
-                    beforeSend: function() { 
-                        $("#validation-errors-payment").hide().empty();                                     
-                    },
-                    success: function(data) {
-                        if(data.success == false) {
-                            $("#validation-errors-payment").append(data.errors);
-                            $("#validation-errors-payment").show();
-                        }else{
-                            window.location="{{URL::to('business/payments/"+data.payment.id+"')}}";
-                        }
-                    },
-                    error: function(xhr, textStatus, thrownError) {
-                        $('#modal-client').modal('hide');
-                        $('#error-app').modal('show');                      
-                        $("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");               
+
+                if(!$.isNumeric($("#contrato_saldo").val())){
+                    alertify.error("Por favor ingrese contrato.");
+                    return false
+                }
+                if(!$.isNumeric($("#valor").val())){
+                    alertify.error("Por favor valor recibo.");
+                    return false
+                }
+                var saldo_contrato = $('#contrato_saldo').val() - $('#valor').val();
+                event.preventDefault();  
+                bootbox.confirm('Nuevo saldo para el contrato: <h3><span class="label label-danger">'+saldo_contrato+'</span></h3>¿Desea continuar?', function(result) {
+                    if(result === true){
+                        $.ajax({
+                            type: 'POST',
+                            cache: false,
+                            dataType: 'json',
+                            data: $('#form-add-payment').serialize(),
+                            url : url,
+                            beforeSend: function() { 
+                                $("#validation-errors-payment").hide().empty();                                     
+                            },
+                            success: function(data) {
+                                if(data.success == false) {
+                                    $("#validation-errors-payment").append(data.errors);
+                                    $("#validation-errors-payment").show();
+                                }else{
+                                    window.location="{{URL::to('business/payments/"+data.payment.id+"')}}";
+                                }
+                            },
+                            error: function(xhr, textStatus, thrownError) {
+                                $('#modal-client').modal('hide');
+                                $('#error-app').modal('show');                      
+                                $("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");               
+                            }
+                        });
                     }
-                });
+                }); 
                 return false;
             });
         });

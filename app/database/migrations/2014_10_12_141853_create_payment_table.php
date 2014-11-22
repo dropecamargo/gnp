@@ -20,7 +20,8 @@ class CreatePaymentTable extends Migration {
             $table->integer('cobrador')->unsigned();
             $table->date('fecha');
             $table->string('tipo', 2);
-            $table->float('valor');           	
+            $table->float('valor');
+            $table->date('proxima');           	
 			$table->timestamps();
 
         	$table->foreign('contrato')->references('id')->on('contratos')->onDelete('restrict');

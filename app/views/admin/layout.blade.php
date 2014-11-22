@@ -11,6 +11,8 @@
     <title>@yield('title', 'GNP Software')</title>
     <!-- Bootstrap core CSS -->
     <link href="{{ asset('bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/alertify.core.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/alertify.default.css') }}" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="{{ asset('bootstrap/css/dashboard.css') }}" rel="stylesheet">
@@ -101,5 +103,7 @@
     <script src="{{ asset('js/docs.min.js') }}"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{{ asset('js/ie10-viewport-bug-workaround.js') }}"></script>
+    <script src="{{ asset('js/alertify.min.js') }}"></script>
+    <script src="{{ asset('js/bootbox.min.js') }}"></script>
   </body>
 </html>

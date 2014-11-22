@@ -83,12 +83,13 @@
 	</div>
     {{ Form::open(array('route' => 'util.cart.store', 'method' => 'POST', 'id' => 'form-cart-products-contract')) }}
 	<div class="row">
-		{{ Form::hidden('key', Contract::$key_cart_products) }}
-		{{ Form::hidden('template', Contract::$template_cart_products) }}
+		{{ Form::hidden('_key', Contract::$key_cart_products) }}
+		{{ Form::hidden('_template', Contract::$template_cart_products) }}
 		<div class="form-group col-md-2"></div>
         <div class="form-group col-md-5">
             {{ Form::label('producto', 'Producto') }}
         	{{ Form::select('producto', array('0' => 'Seleccione') + $products ,null, array('class' => 'form-control')) }}
+        	{{ Form::hidden('producto_nombre', null,array('id' => 'producto_nombre')) }}
         </div>
         <div class="form-group col-md-2">
             {{ Form::label('cantidad', 'Cantidad') }}
@@ -96,7 +97,7 @@
         </div>
         <div class="form-group col-md-1">
         	<label><span>&nbsp;</span></label>
-        	<button type="button" id="btn-contract-add-product" class="btn btn-default btn-md">
+        	<button type="submit" id="btn-contract-add-product" class="btn btn-default btn-md">
 				<span class="glyphicon glyphicon-plus-sign"></span>
 			</button>
         </div>
@@ -227,13 +228,27 @@
                 return false;
             });	
 			
+			$("#producto").change(function() {
+				$("#producto_nombre").val($("#producto option:selected").text())
+			});
+
 			$("#btn-submit-contract").click(function() {
 				$("#form-add-contract").submit();
 			});	
 
-			$('#btn-contract-add-product').on('click', function(){
-				utilList.store($('#form-cart-products-contract').serialize())
-			});			     
+			$('#form-cart-products-contract').on('submit', function(event){                             
+	            var url = $(this).attr('action')
+	            event.preventDefault();
+	            if($("#producto").val() == '0'){
+	            	alertify.error("Por favor seleccione producto.");
+	            	return
+	            }
+	            if(!$.isNumeric($("#cantidad").val())){
+	            	alertify.error("Por favor ingrese cantidad.");
+	            	return
+	            }
+				utilList.store(url,$('#form-cart-products-contract').serialize())
+			});
 		});
 	</script>
 

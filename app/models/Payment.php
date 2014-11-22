@@ -10,7 +10,7 @@ class Payment extends Eloquent {
 
 	public $types = array('PA' => 'Pago', 'DE' => 'Descuento', 'DV' => 'Devolución');
 
-	protected $fillable = array('numero', 'fecha', 'contrato', 'cobrador', 'tipo', 'valor');
+	protected $fillable = array('numero', 'fecha', 'contrato', 'cobrador', 'tipo', 'valor', 'proxima');
 
 	public function isValid($data)
     {
@@ -21,7 +21,8 @@ class Payment extends Eloquent {
             'contrato' => 'required|numeric',
             'cobrador' => 'required|numeric|min:1',
             'valor' => 'required|min:1|regex:[^[0-9]*$]',
-            'tipo' => 'required'
+            'tipo' => 'required',
+            'proxima' => 'date_format:Y-m-d'
         );
         
         if ($this->exists){

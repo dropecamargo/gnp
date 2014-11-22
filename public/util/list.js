@@ -1,26 +1,22 @@
 var utilList = { 
-	store : function(data){
-		console.log('desde list')		
-		console.log(data);	
-
+	store : function(url, data){
 		$.ajax({
             type: 'POST',
             cache: false,
             dataType: 'json',
             data: data,
-            url : 'http://localhost/gnp/public/util/cart',
+            url : url,
             beforeSend: function() { 
-            	$("#contract-list-products").hide().empty(); 
-                $('#loading-app').modal('show')                                   
+            	$('#loading-app').modal('show')                                   
             },
             success: function(data) {
-            	$('#loading-app').modal('hide')
+                $('#loading-app').modal('hide')
                 if(data.success == true) {
-                    $("#contract-list-products").append(data.list);
+                    $("#contract-list-products").empty().append(data.list);
                     $("#contract-list-products").show();
                 }else{
                 	$('#error-app').modal('show');                      
-                	$("#error-app-label").empty().html("Ocurrio un error agregando item - Consulte al administrador.");               
+                	$("#error-app-label").empty().html(data.error+" - Consulte al administrador.");               
                 }
             },
             error: function(xhr, textStatus, thrownError) {
@@ -29,5 +25,32 @@ var utilList = {
                 $("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");               
             }
         });	
-	}
+	},
+    remove : function(url, data){
+        $.ajax({
+            type: 'POST',
+            cache: false,
+            dataType: 'json',
+            data: data,
+            url : url,
+            beforeSend: function() { 
+                $('#loading-app').modal('show')                                   
+            },
+            success: function(data) {
+                $('#loading-app').modal('hide')
+                if(data.success == true) {
+                    $("#contract-list-products").empty().append(data.list);
+                    $("#contract-list-products").show();
+                }else{
+                    $('#error-app').modal('show');                      
+                    $("#error-app-label").empty().html(data.error+" - Consulte al administrador.");               
+                }
+            },
+            error: function(xhr, textStatus, thrownError) {
+                $('#loading-app').modal('hide');
+                $('#error-app').modal('show');                      
+                $("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");               
+            }
+        });
+    }
 }

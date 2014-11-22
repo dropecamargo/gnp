@@ -7,19 +7,21 @@
 		</tr>	
 	</thead>     	    	
 	<tbody>
-		@foreach ($list as $item)
-			{{--*/ $item = (object) $item; /*--}}
+		@if(count($list) > 0)
+			@foreach ($list as $index => $item)
+				{{--*/ $item = (object) $item; /*--}}
+				<tr>
+					<td align="center" width="20%;">
+						@include('/util/list/remove') 		
+					</td>
+					<td width="60%;">{{ $item->producto_nombre }}</td>
+					<td align="center" width="20%;">{{ $item->cantidad }}</td>
+				</tr>
+			@endforeach
+		@else
 			<tr>
-				<td align="center" width="20%;">
-				  	{{ Form::open(array('route' => array('util.cart.destroy', $item->producto), 'method' => 'DELETE')) }}
-						<button type="submit" id="btn-contract-add-product" class="btn btn-default btn-md">
-							<span class="glyphicon glyphicon-minus-sign"></span>
-						</button>
-					{{ Form::close() }}	
-				</td>
-				<td width="60%;">{{ $item->producto }}</td>
-				<td align="center" width="20%;">{{ $item->cantidad }}</td>
-			</tr>
-		@endforeach
+				<td align="center" colspan="3">No exiten productos en el carrito.</td>
+			</tr>	
+		@endif
 	</tbody>
 </table> 
