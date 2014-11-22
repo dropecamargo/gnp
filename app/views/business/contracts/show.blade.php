@@ -68,9 +68,10 @@
         <table id="table-employees" class="table table-striped" style="width:80%" align="center">
             <thead>
                 <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Devolución </th>
+                    <th width="60%">Producto</th>
+                    <th width="15%">Cantidad</th>
+                    <th width="15%">Devolución</th>
+                    <th width="10%"><span>&nbsp;</span></th>
                 </tr>   
             </thead>                
             <tbody>
@@ -79,6 +80,7 @@
                         <td>{{ $product->nombre }}</td>
                         <td>{{ $product->cantidad }}</td>
                         <td>{{ $product->devolucion }}</td>
+                        <td><strong>{{ $product->cantidad - $product->devolucion }}</strong></td>
                     </tr>
                 @endforeach
             </tbody>

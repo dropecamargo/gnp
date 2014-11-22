@@ -65,9 +65,12 @@
             </div>
         </div>        
 	</div>
+    {{ Form::button('Crear recibo', array('type' => 'submit', 'class' => 'btn btn-success')) }}        
+    
+    <div class="row">
+        <div id="return-products-payment"></div>
+   	</div>
 
-   	{{ Form::button('Crear recibo', array('type' => 'submit', 'class' => 'btn btn-success')) }}        
-	
 	{{ Form::close() }}
 
     <script type="text/javascript">
@@ -102,6 +105,14 @@
                 }
             })
 
+            $("#tipo").change(function() {
+                if($('#tipo').val() == 'DE'){
+                    $("#return-products-payment").show() 
+                }else{
+                    $("#return-products-payment").hide()    
+                }
+            })
+              
             $("#contrato_numero").change(function() {
                 var inputVal = $("#contrato_numero").val();
                 var numericReg = /^\d*[0-9](|.\d*[0-9]|,\d*[0-9])?$/;
@@ -123,13 +134,21 @@
                         url : url,
                         beforeSend: function() {
                             $('#loading-app').modal('show');
+                            $("#return-products-payment").hide().empty();
                         },
                         success: function(data) {
+                            console.log(data)
                             $('#loading-app').modal('hide')
                             if(data.success == true) {                                                   
                                 $('#contrato').val(data.contract.id)
                                 $('#cliente_nombre').val(data.contract.cliente_nombre)
-                                $('#contrato_saldo').val(data.contract.contrato_saldo)  
+                                $('#contrato_saldo').val(data.contract.contrato_saldo) 
+
+                                // Productos devolucion 
+                                $("#return-products-payment").append(data.products);                                    
+                                if($('#tipo').val() == 'DE'){
+                                    $("#return-products-payment").show(); 
+                                }
                             }else{
                                 $("#contrato_numero").val('')
                             }                            

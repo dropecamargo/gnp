@@ -72,7 +72,25 @@ class Business_PaymentsController extends \BaseController {
 	        			}        		
 	        		}	
         		}
-
+ 
+        		// Devolucion productos
+        		if($payment->tipo == 'DE'){
+        			$products = ContractProduct::select('contratop.id','contratop.cantidad',DB::raw('(contratop.cantidad - contratop.devolucion) as disponible'))
+						->where('contrato', '=', $payment->contrato)->get();
+					foreach ($products as $product) {
+						if($product->disponible > 0 && Input::has('devolucion_'.$product->id)) {
+							if(Input::get('devolucion_'.$product->id) > 0){
+								$product_contract = ContractProduct::find($product->id);
+						        if (is_null($product_contract)) {
+						       		DB::rollback();
+									return Response::json(array('success' => false, 'errors' =>  "Error recuperando item producto contrato"));
+						        }
+						        $product_contract->devolucion = ($product_contract->devolucion + Input::get('devolucion_'.$product->id)); 
+								$product_contract->save();
+							}
+						}
+					}
+        		}
         	}catch(\Exception $exception){
 			    DB::rollback();
 				return Response::json(array('success' => false, 'errors' =>  "$exception - Consulte al administrador."));

@@ -56,7 +56,7 @@ class Business_ContractsController extends \BaseController {
         		// Generar cuotas
         		$fecha_cuota = $contract->primera;        
 		        $valor_cuota = 0;
-		        @$valor_cuota = $contract->valor/$contract->cuotas;
+		        $valor_cuota = $contract->valor/$contract->cuotas;
 
 		        for($i=1; $i <= $contract->cuotas; $i++){
 		            if (!$fecha_cuota){                
@@ -187,7 +187,14 @@ class Business_ContractsController extends \BaseController {
     	$contract = DB::select($query);       	        				
 		if(count($contract)>=1){			
 			$contract[0]->contrato_saldo = round($contract[0]->contrato_saldo,-1);
-			return Response::json(array('success' => true, 'contract' => $contract[0]));
+			
+			// Recuperar productos contrato
+	        $products = ContractProduct::select('contratop.id','productos.nombre','contratop.cantidad',DB::raw('(contratop.cantidad - contratop.devolucion) as disponible'))
+	        	->join('productos', 'productos.id', '=', 'contratop.producto')
+	        	->where('contrato', '=', $contract[0]->id)->get();
+	        $html_products = View::make('business/contracts/products_return', array('products' => $products))->render();
+			//$html_products = 'ss';
+			return Response::json(array('success' => true, 'contract' => $contract[0], 'products' => $html_products));
 		}
 		return Response::json(array('success' => false));        
 	}
