@@ -109,7 +109,7 @@
 				</div>
 				<div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
 					<div class="panel-body">
-						{{ Form::open(array('url' => array('business/reports/ventas'), 'method' => 'POST'), array('role' => 'form')) }}									
+						{{ Form::open(array('url' => array('business/reports/ventasperiodo'), 'method' => 'POST'), array('role' => 'form')) }}									
 							<div class="row" align="center">
 								<div class="form-group col-md-2"></div>
 								<div class="form-group col-md-4">

@@ -82,7 +82,7 @@ class Business_ReportsController extends \BaseController {
 		//
 	}
 
-	public function carteraedades()
+	public function carteraEdades()
 	{
 		$query_cartera = "SELECT ct.numero as contrato, cl.cedula as cliente, 
 			cl.nombre as cliente_nombre, c.cuota, c.saldo as saldo,  
@@ -171,5 +171,20 @@ class Business_ReportsController extends \BaseController {
 	        'Content-Transfer-Encoding' => ' binary'
 	    );
 		return Response::make($output, 200, $headers);
+	}
+
+	public function estadoCuenta()
+	{
+		return 'Generando reporte estadoCuenta';
+	}
+
+	public function recibosCaja()
+	{
+		return 'Generando reporte recibosCaja';
+	}
+
+	public function ventasPeriodo()
+	{
+		return 'Generando reporte ventasPeriodo';
 	}
 }
