@@ -106,7 +106,7 @@
             })
 
             $("#tipo").change(function() {
-                if($('#tipo').val() == 'DE'){
+                if($('#tipo').val() == 'DV'){
                     $("#return-products-payment").show() 
                 }else{
                     $("#return-products-payment").hide()    
@@ -146,7 +146,7 @@
 
                                 // Productos devolucion 
                                 $("#return-products-payment").append(data.products);                                    
-                                if($('#tipo').val() == 'DE'){
+                                if($('#tipo').val() == 'DV'){
                                     $("#return-products-payment").show(); 
                                 }
                             }else{

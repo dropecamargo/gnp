@@ -72,7 +72,7 @@ class Business_PaymentsController extends \BaseController {
         		}
  
         		// Devolucion productos
-        		if($payment->tipo == 'DE'){
+        		if($payment->tipo == 'DV'){
         			$products = ContractProduct::select('contratop.id','contratop.cantidad',DB::raw('(contratop.cantidad - contratop.devolucion) as disponible'))
 						->where('contrato', '=', $payment->contrato)->get();
 					foreach ($products as $product) {
