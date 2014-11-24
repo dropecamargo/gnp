@@ -20,7 +20,10 @@
 				<td>{{ $customer->telefono_casa }}</td>
 				<td nowrap="nowrap">					
 					<a href="{{ route('business.customers.show', $customer->id) }}" class="btn btn-info">Ver</a>
-					<a href="{{ route('business.customers.edit', $customer->id) }}" class="btn btn-primary">Editar</a>	
+					{{--*/ $allowed = array('A') /*--}}
+    				@if (in_array(Auth::user()->perfil, $allowed))
+						<a href="{{ route('business.customers.edit', $customer->id) }}" class="btn btn-primary">Editar</a>	
+					@endif
 				</td>
 			</tr>
 		@endforeach	

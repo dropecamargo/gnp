@@ -14,7 +14,10 @@
 				<td>{{ $product->nombre }}</td>
 				<td nowrap="nowrap">					
 					<a href="{{ route('business.products.show', $product->id) }}" class="btn btn-info">Ver</a>
-					<a href="{{ route('business.products.edit', $product->id) }}" class="btn btn-primary">Editar</a>
+					{{--*/ $allowed = array('A') /*--}}
+    				@if (in_array(Auth::user()->perfil, $allowed))
+						<a href="{{ route('business.products.edit', $product->id) }}" class="btn btn-primary">Editar</a>
+					@endif
 				</td>
 			</tr>
 		@endforeach	

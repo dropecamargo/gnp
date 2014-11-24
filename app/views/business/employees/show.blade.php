@@ -42,11 +42,15 @@
         	<div>{{ $employee->updated_at }}</div>
         </div>  
     </div>
-    <p>			
-		{{ Form::model($employee, array('route' => array('business.employees.destroy', $employee->id), 'method' => 'DELETE'), array('role' => 'form')) }}			
-			<a href="{{ route('business.employees.edit', $employee->id) }}" class="btn btn-success">Editar</a>		
-			{{ Form::submit('Eliminar', array('class' => 'btn btn-danger')) }}
-		{{ Form::close() }}
-	</p>	
+   
+   {{--*/ $allowed = array('A') /*--}}
+    @if (in_array(Auth::user()->perfil, $allowed))
+	    <p>			
+			{{ Form::model($employee, array('route' => array('business.employees.destroy', $employee->id), 'method' => 'DELETE'), array('role' => 'form')) }}			
+				<a href="{{ route('business.employees.edit', $employee->id) }}" class="btn btn-success">Editar</a>		
+				{{ Form::submit('Eliminar', array('class' => 'btn btn-danger')) }}
+			{{ Form::close() }}
+		</p>
+	@endif	
    		
 @stop

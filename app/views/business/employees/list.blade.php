@@ -4,19 +4,17 @@
 
 @section ('content')
 
-	{{--*/ $allowed = array('A','C') /*--}}
+	<h1 class="page-header">Empleados</h1>
+   	{{--*/ $allowed = array('A') /*--}}
     @if (in_array(Auth::user()->perfil, $allowed))
-		<h1 class="page-header">Empleados</h1>
 	   	<div class="row">		
 		  	<div class="form-group col-md-4">
 				<a href="{{ route('business.employees.create') }}" class="btn btn-primary">Nuevo empleado</a>					
 			</div>					
 		</div>
-		<div id="employees">
-			@include('business.employees.employees')
-		</div>
-	@else
-		@include('denied')
 	@endif
+	<div id="employees">
+		@include('business.employees.employees')
+	</div>
 
 @stop

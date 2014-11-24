@@ -20,7 +20,10 @@
 				<td>{{ $employee->states[$employee->activo] }}</td>
 				<td nowrap="nowrap">					
 					<a href="{{ route('business.employees.show', $employee->id) }}" class="btn btn-info">Ver</a>
-					<a href="{{ route('business.employees.edit', $employee->id) }}" class="btn btn-primary">Editar</a>	
+					{{--*/ $allowed = array('A') /*--}}
+    				@if (in_array(Auth::user()->perfil, $allowed))
+						<a href="{{ route('business.employees.edit', $employee->id) }}" class="btn btn-primary">Editar</a>	
+					@endif
 				</td>
 			</tr>
 		@endforeach

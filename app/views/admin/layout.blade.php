@@ -59,13 +59,24 @@
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <li>{{ HTML::link('/admin/users', 'Usuarios') }}</li>
-            <li>{{ HTML::link('/business/employees', 'Empleados') }}</li>
+            @if (in_array(Auth::user()->perfil, array('A')))
+              <li>{{ HTML::link('/admin/users', 'Usuarios') }}</li>
+            @endif
+            @if (in_array(Auth::user()->perfil, array('A','C')))
+              <li>{{ HTML::link('/business/employees', 'Empleados') }}</li>
+            @endif
+
             <li>{{ HTML::link('/business/customers', 'Clientes') }}</li>
+            
             <li>{{ HTML::link('/business/products', 'Productos') }}</li>
+            
             <li>{{ HTML::link('/business/contracts', 'Contratos') }}</li>
+            
             <li>{{ HTML::link('/business/payments', 'Recibos de pago') }}</li>
-            <li>{{ HTML::link('/business/reports', 'Reportes') }}</li>
+            
+            @if (in_array(Auth::user()->perfil, array('A')))
+              <li>{{ HTML::link('/business/reports', 'Reportes') }}</li>
+            @endif
           </ul>
         </div>
         

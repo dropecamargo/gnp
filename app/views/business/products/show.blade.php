@@ -27,7 +27,10 @@
             <div>{{ $product->updated_at }}</div>
         </div>  
     </div>
-    <p>			
-		<a href="{{ route('business.products.edit', $product->id) }}" class="btn btn-success">Editar</a>		
-	</p>
+    {{--*/ $allowed = array('A') /*--}}
+    @if (in_array(Auth::user()->perfil, $allowed))
+        <p>			
+    		<a href="{{ route('business.products.edit', $product->id) }}" class="btn btn-success">Editar</a>		
+    	</p>
+    @endif
 @stop 

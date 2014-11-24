@@ -107,8 +107,10 @@
             <div>{{ $customer->updated_at }}</div>
         </div>  
     </div>
-    <p>         
-        <a href="{{ route('business.customers.edit', $customer->id) }}" class="btn btn-success">Editar</a>      
-    </p>    
-
+    {{--*/ $allowed = array('A') /*--}}
+    @if (in_array(Auth::user()->perfil, $allowed))
+        <p>         
+            <a href="{{ route('business.customers.edit', $customer->id) }}" class="btn btn-success">Editar</a>      
+        </p>    
+    @endif
 @stop

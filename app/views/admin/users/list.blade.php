@@ -4,7 +4,7 @@
 
 @section ('content')
 	
-	{{--*/ $allowed = array('A','C') /*--}}
+	{{--*/ $allowed = array('A') /*--}}
     @if (in_array(Auth::user()->perfil, $allowed))
 		<h1 class="page-header">Usuarios</h1>
 	   	<div class="row">		

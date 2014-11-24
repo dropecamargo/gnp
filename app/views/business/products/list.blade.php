@@ -15,8 +15,11 @@
  	</div> 	
  	<div class="row" align="center">
 		<button type="submit" class="btn btn-primary">Buscar</button>
-		{{Form::button('Limpiar', array('class'=>'btn btn-primary', 'id' => 'button-clear-search-products' ));}} 
-		<a href="{{ route('business.products.create') }}" class="btn btn-primary">Nuevo producto</a>
+		{{Form::button('Limpiar', array('class'=>'btn btn-primary', 'id' => 'button-clear-search-products' ));}} 	
+		{{--*/ $allowed = array('A') /*--}}
+    	@if (in_array(Auth::user()->perfil, $allowed))
+			<a href="{{ route('business.products.create') }}" class="btn btn-primary">Nuevo producto</a>
+		@endif
 	</div>
 	<br/>
  	{{ Form::close() }}
