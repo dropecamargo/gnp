@@ -9,9 +9,7 @@ class Business_PaymentsController extends \BaseController {
 	 */
 	public function index()
 	{
-		$query = Payment::join('contratos', 'contrato', '=', 'contratos.id')
-			->join('clientes', 'contratos.cliente', '=', 'clientes.id');
-		$data["payments"] = $payments = $query->paginate(6, array('recibos.*','clientes.nombre as cliente_nombre'));
+		$data['payments'] = $payments = Payment::getData();
 		if(Request::ajax())
         {
             //Comments pagination

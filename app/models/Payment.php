@@ -12,6 +12,10 @@ class Payment extends Eloquent {
 
 	protected $fillable = array('numero', 'fecha', 'contrato', 'cobrador', 'tipo', 'valor', 'proxima');
 
+    public $errors;
+
+    protected $perPage = 6;
+
 	public function isValid($data)
     {
         $rules = array(            
@@ -37,6 +41,27 @@ class Payment extends Eloquent {
         }        
         $this->errors = $validator->errors();        
         return false;
+    }
 
+    public static function getData()
+    {
+        $query = Payment::query();      
+        $query->join('contratos', 'contrato', '=', 'contratos.id');
+        $query->join('clientes', 'contratos.cliente', '=', 'clientes.id');
+        $query->select('recibos.*','clientes.nombre as cliente_nombre','contratos.numero as contrato_numero');        
+        if (Input::has("numero")) {
+            $query->where('recibos.numero', Input::get("numero"));
+        }
+        if (Input::has("contrato")) {
+            $query->where('contratos.numero', Input::get("contrato"));
+        }
+        if (Input::has("cliente_cedula")) {         
+            $query->where('clientes.cedula', Input::get("cliente_cedula")); 
+        }  
+        if (Input::has("cliente_nombre")) {          
+            $query->where('clientes.nombre', 'like', '%'.Input::get("cliente_nombre").'%');
+        }       
+        $query->orderby('recibos.fecha', 'DESC');
+        return $query->paginate();
     }
 }

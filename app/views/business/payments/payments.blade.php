@@ -17,7 +17,7 @@
 			<tr>
 				<td>{{ $payment->numero }}</td>
 				<td>{{ $payment->fecha }}</td>
-				<td>{{ $payment->contrato }}</td>
+				<td>{{ $payment->contrato_numero }}</td>
 				<td>{{ $payment->cliente_nombre }}</td>
 				<td><?php echo number_format($payment->valor, 2,'.',',' ) ?></td>
 				<td nowrap="nowrap">					
@@ -36,6 +36,7 @@
 			$.ajax({
 				url: url,
 				type: "GET",
+				data: $('#form-search-payments').serialize(),
 				datatype: "html",
 				beforeSend: function() {
 					$('#loading-app').modal('show');
