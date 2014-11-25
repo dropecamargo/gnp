@@ -71,4 +71,52 @@ class Customer extends Eloquent {
     public function setNombreAttribute($name){
 		$this->attributes['nombre'] = strtoupper($name);
 	}
+
+    public function setDireccioncasaAttribute($direccion_casa){
+        $this->attributes['direccion_casa'] = strtoupper($direccion_casa);
+    }
+
+    public function setBarriocasaAttribute($barrio_casa){
+        $this->attributes['barrio_casa'] = strtoupper($barrio_casa);
+    }
+
+    public function setEmpresaAttribute($empresa){
+        $this->attributes['empresa'] = strtoupper($empresa);
+    }
+
+    public function setCargoAttribute($cargo){
+        $this->attributes['cargo'] = strtoupper($cargo);
+    }
+
+    public function setDireccionempresaAttribute($direccion_empresa){
+        $this->attributes['direccion_empresa'] = strtoupper($direccion_empresa);
+    }
+
+    public function setBarrioempresaAttribute($barrio_empresa){
+        $this->attributes['barrio_empresa'] = strtoupper($barrio_empresa);
+    }
+
+    public function setref1NombreAttribute($ref1_nombre){
+        $this->attributes['ref1_nombre'] = strtoupper($ref1_nombre);
+    }
+
+    public function setRef1ParentescoAttribute($ref1_parentesco){
+        $this->attributes['ref1_parentesco'] = strtoupper($ref1_parentesco);
+    }
+
+    public function setRef1direccionAttribute($ref1_direccion){
+        $this->attributes['ref1_direccion'] = strtoupper($ref1_direccion);
+    }
+
+    public function setref2NombreAttribute($ref2_nombre){
+        $this->attributes['ref2_nombre'] = strtoupper($ref2_nombre);
+    }
+
+    public function setRef2ParentescoAttribute($ref2_parentesco){
+        $this->attributes['ref2_parentesco'] = strtoupper($ref2_parentesco);
+    }
+
+    public function setRef2direccionAttribute($ref2_direccion){
+        $this->attributes['ref2_direccion'] = strtoupper($ref2_direccion);
+    }
 }

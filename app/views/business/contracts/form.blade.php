@@ -29,6 +29,9 @@
 
   	<div id="validation-errors-contract" style="display: none"></div>
 
+  	<div align="center">
+    	{{ Form::button($action . ' contrato', array('type' => 'button','class' => 'btn btn-success', 'id' => 'btn-submit-contract' )) }}        
+	</div>
 	{{ Form::model($contract, $form_data, array('role' => 'form')) }}
 	<div class="row">
         <div class="form-group col-md-3">
@@ -77,10 +80,7 @@
         </div>        
     </div>
     {{ Form::close() }}
-
-    <div align="center">
-    	{{ Form::button($action . ' contrato', array('type' => 'button','class' => 'btn btn-success', 'id' => 'btn-submit-contract' )) }}        
-	</div>
+    
     {{ Form::open(array('route' => 'util.cart.store', 'method' => 'POST', 'id' => 'form-cart-products-contract')) }}
 	<div class="row">
 		{{ Form::hidden('_key', Contract::$key_cart_products) }}

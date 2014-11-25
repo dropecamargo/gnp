@@ -16,7 +16,12 @@
 
   	{{ Form::model($payment, array('route' => 'business.payments.store', 'method' => 'POST', 'id' => 'form-add-payment'), array('role' => 'form')) }}
     
-	<div class="row">
+    <div class="row">
+        <div class="form-group col-md-12" align="center">
+            {{ Form::button('Crear recibo', array('type' => 'submit', 'class' => 'btn btn-success')) }}
+	   </div>
+    </div>
+    <div class="row">
         <div class="form-group col-md-3">
             {{ Form::label('numero', 'Número') }}
             {{ Form::text('numero', null, array('placeholder' => 'Número recibo', 'class' => 'form-control')) }}        
@@ -65,8 +70,6 @@
             </div>
         </div>        
 	</div>
-    {{ Form::button('Crear recibo', array('type' => 'submit', 'class' => 'btn btn-success')) }}        
-    
     <div class="row">
         <div id="return-products-payment"></div>
    	</div>

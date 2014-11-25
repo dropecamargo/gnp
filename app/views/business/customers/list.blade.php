@@ -8,11 +8,11 @@
 	{{ Form::open(array('route' => 'business.customers.index', 'method' => 'POST', 'id' => 'form-search-customers'), array('role' => 'form')) }}				
 	<h4 class="page-header">Formulario de busqueda</h4>   	
 	<div class="row">	
-        <div class="form-group col-md-3">
+        <div class="form-group col-md-4">
         	{{ Form::label('cliente_cedula', 'Cliente') }}
-            {{ Form::text('cliente_cedula', null, array('placeholder' => 'Ingrese cliente', 'class' => 'form-control')) }}        
+            {{ Form::text('cliente_cedula', null, array('placeholder' => 'Ingrese cédula', 'class' => 'form-control')) }}        
         </div>
-        <div class="form-group col-md-6">        	
+        <div class="form-group col-md-8">        	
             {{ Form::label('cliente_nombre', 'Nombre') }}
             {{ Form::text('cliente_nombre', null, array('class' => 'form-control', 'placeholder' => 'Ingrese nombre')) }}        
         </div>

@@ -14,7 +14,7 @@
         </div>	
         <div class="form-group col-md-3">
         	{{ Form::label('cliente_cedula', 'Cliente') }}
-            {{ Form::text('cliente_cedula', null, array('placeholder' => 'Ingrese cliente', 'class' => 'form-control')) }}        
+            {{ Form::text('cliente_cedula', null, array('placeholder' => 'Ingrese cédula', 'class' => 'form-control')) }}        
         </div>
         <div class="form-group col-md-4">        	
             {{ Form::label('cliente_nombre', 'Nombre') }}
