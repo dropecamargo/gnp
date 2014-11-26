@@ -86,7 +86,7 @@
 								<div class="form-group col-md-6">
 								{{ Form::label('tipo', 'Tipo') }}
 								{{ Form::select('tipo', array(
-									'T' => 'Todos', 'PA' => 'Pago', 'DE' => 'Descuento', 'DV' => 'Devolución'),
+									'0' => 'Todos', 'PA' => 'Pago', 'DE' => 'Descuento', 'DV' => 'Devolución'),
 									'T',array('class' => 'form-control', 'style' => 'width:30;')) 
 								}}
 								</div>

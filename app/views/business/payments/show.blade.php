@@ -54,7 +54,9 @@
         </div> 
         <div class="form-group col-md-3">
             <label>Proximo pago</label>
-            <div>{{ $payment->proxima }}</div>
+            @if($payment->proxima != '0000-00-00')
+                <div>{{ $payment->proxima }}</div>
+            @endif
         </div>        
     </div>
 	<div class="row">
@@ -67,4 +69,22 @@
             <div>{{ $payment->updated_at }}</div>
         </div>  
     </div>
+    @if(count($products) > 0) 
+        <table id="table-employees" class="table table-striped" style="width:80%" align="center">
+            <thead>
+                <tr>
+                    <th width="85%">Producto</th>
+                    <th width="15%">Devolución</th>
+                </tr>   
+            </thead>                
+            <tbody>
+                @foreach ($products as $product)
+                    <tr>
+                        <td>{{ $product->nombre }}</td>
+                        <td>{{ $product->devolucion }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif 
 @stop 

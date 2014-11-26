@@ -23,14 +23,19 @@
 									$("#devolucion_"+{{ $product->id }}).change(function() {
 										var cantidad = $("#cantidad_"+{{ $product->id }}).val()
 										var devolucion = $("#devolucion_"+{{ $product->id }}).val()
-										
-							            if(!$.isNumeric(devolucion)){
+										if(!$.isNumeric(devolucion)){
 							            	alertify.error("Por favor ingrese unidades devolucion validas.");
 							            	$("#devolucion_"+{{ $product->id }}).val('0')
 							            	return
 							            }
 
-							             if(devolucion > cantidad){
+							            if(!$.isNumeric(cantidad)){
+							            	alertify.error("Error recuperando unidades disponibles - Consulte al administrador.");
+							            	$("#devolucion_"+{{ $product->id }}).val('0')
+							            	return
+							            }
+
+							            if(parseInt(devolucion) > parseInt(cantidad)){
 							            	alertify.error("Unidades a devolver  no pueden ser mayor a unidades resgistradas en el contrato.");
 							            	$("#devolucion_"+{{ $product->id }}).val('0')
 							            	return

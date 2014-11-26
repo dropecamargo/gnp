@@ -76,15 +76,28 @@ class Business_PaymentsController extends \BaseController {
         			$products = ContractProduct::select('contratop.id','contratop.cantidad',DB::raw('(contratop.cantidad - contratop.devolucion) as disponible'))
 						->where('contrato', '=', $payment->contrato)->get();
 					foreach ($products as $product) {
+						unset($unidades_devolucion);
 						if($product->disponible > 0 && Input::has('devolucion_'.$product->id)) {
-							if(Input::get('devolucion_'.$product->id) > 0){
-								$product_contract = ContractProduct::find($product->id);
-						        if (is_null($product_contract)) {
-						       		DB::rollback();
-									return Response::json(array('success' => false, 'errors' =>  "Error recuperando item producto contrato"));
-						        }
-						        $product_contract->devolucion = ($product_contract->devolucion + Input::get('devolucion_'.$product->id)); 
-								$product_contract->save();
+							$unidades_devolucion = intval(Input::get('devolucion_'.$product->id));
+							if($unidades_devolucion > 0){
+								if($unidades_devolucion > $product->disponible) {
+									DB::rollback();
+									return Response::json(array('success' => false, 'errors' =>  "Error unidades {$product->disponible} $unidades_devolucion - Consulte al administrador."));		
+								}else{
+									$product_contract = ContractProduct::find($product->id);
+							        if (is_null($product_contract)) {
+							       		DB::rollback();
+										return Response::json(array('success' => false, 'errors' =>  "Error recuperando item producto contrato"));
+							        }
+							        $product_contract->devolucion = ($product_contract->devolucion + $unidades_devolucion); 
+									$product_contract->save();
+
+									$product_payment = new PaymentProduct();
+									$product_payment->recibo = $payment->id;
+						        	$product_payment->producto = $product_contract->producto;
+						        	$product_payment->devolucion = $unidades_devolucion;
+						        	$product_payment->save();
+								}		
 							}
 						}
 					}
@@ -133,8 +146,14 @@ class Business_PaymentsController extends \BaseController {
         if (is_null($collector)) {
             App::abort(404);   
         }
+
+      	$products = PaymentProduct::select('recibop.*','productos.*')
+        	->join('productos', 'productos.id', '=', 'recibop.producto')
+        	->where('recibo', '=', $payment->id)->get();
+        
         return View::make('business/payments/show', array('payment' => $payment,
-        	'contract' => $contract, 'customer' => $customer, 'collector' => $collector
+        	'contract' => $contract, 'customer' => $customer, 'collector' => $collector,
+        	'products' => $products
         	));
 	}
 

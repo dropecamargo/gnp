@@ -140,7 +140,6 @@
                             $("#return-products-payment").hide().empty();
                         },
                         success: function(data) {
-                            console.log(data)
                             $('#loading-app').modal('hide')
                             if(data.success == true) {                                                   
                                 $('#contrato').val(data.contract.id)
