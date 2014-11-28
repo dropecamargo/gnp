@@ -142,7 +142,7 @@ class Business_ReportsController extends \BaseController {
 			return "$exception - Consulte al administrador.";
 		}
 
-		$query_reporte = "SELECT cin1 as cliente, cl.nombre as cliente_nombre,
+		$query_reporte = "SELECT cin1 as cliente, cl.nombre as cliente_nombre, cl.cedula as cliente_cedula,
 			sum(ar.cf1) as pv, sum(ar.cf2) as m3, sum(ar.cf3) as m6, 
 			sum(ar.cf4) as m9, sum(ar.cf5) as m18, sum(ar.cf6) as m36, 
 			sum(ar.cf7) as m_36, sum(ar.cf8) as total
@@ -193,7 +193,7 @@ class Business_ReportsController extends \BaseController {
 			$cartera = (array) $cartera;
 			$output.='
 		    <tr>
-		        <td>'.$cartera['cliente'].'</td>
+		        <td>'.$cartera['cliente_cedula'].'</td>
 		        <td>'.utf8_decode($cartera['cliente_nombre']).'</td>
 		        <td>'.$cartera['pv'].'</td>';
 		        if($edades_cartera == 'T' || $edades_cartera == '30'){
