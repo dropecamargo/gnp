@@ -312,6 +312,57 @@ class Business_ReportsController extends \BaseController {
 
 	public function ventasPeriodo()
 	{
-		return 'Generando reporte ventasPeriodo';
+		if (Input::has("detallado")) {         
+			return 'detallado';
+        }else{
+        	$query_ventas = "SELECT COALESCE(SUM(contratos.valor),0) as ventas
+				FROM contratos
+				WHERE
+				contratos.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."'";
+			$ventas = DB::select($query_ventas);
+			$objVentas = $ventas[0];
+
+			$query_devoluciones = "SELECT COALESCE(SUM(recibos.valor),0) as devoluciones
+				FROM recibos 
+				WHERE
+				recibos.tipo = 'DV' 
+				AND
+				recibos.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."'";
+        	$devoluciones = DB::select($query_devoluciones);
+        	$objDevoluciones = $devoluciones[0];
+
+        	$output = '
+			<table>
+				<tfoot>
+		            <tr>
+						<td colspan="8">GNP :: Software Ventas por periodo ('.Input::get("fecha_inicial").' - '.Input::get("fecha_final").') a '.date("Y-m-d H:i:s").'</td>
+		            </tr>
+				</tfoot>
+				<thead>
+				    <tr>
+				        <th>Ventas</th>
+				        <th>Devoluciones</th>
+				        <th>Total</th>
+				    </tr>
+				</thead>
+				<tbody>
+					<tr>
+				        <td>'.$objVentas->ventas.'</td>
+				        <td>'.$objDevoluciones->devoluciones.'</td>
+				        <td>'.($objVentas->ventas - $objDevoluciones->devoluciones).'</td>
+				    </tr>
+				</tbody>
+			</table>';
+		    $headers = array(
+		        'Pragma' => 'public',
+		        'Expires' => 'public',
+		        'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+		        'Cache-Control' => 'private',
+		        'Content-Type' => 'application/vnd.ms-excel',
+		        'Content-Disposition' => 'attachment; filename=gnp_ventas_periodo_'.date('Y-m-d').'.xls',
+		        'Content-Transfer-Encoding' => ' binary'
+		    );
+			return Response::make($output, 200, $headers);
+        }
 	}
 }
