@@ -83,20 +83,75 @@ class Business_ReportsController extends \BaseController {
 	}
 
 	public function carteraEdades()
-	{
-		$query_cartera = "SELECT ct.numero as contrato, cl.cedula as cliente, 
-			cl.nombre as cliente_nombre, c.cuota, c.saldo as saldo,  
-			DATE_FORMAT(c.fecha, '%Y-%m-%d' ) as vencimiento, 
-			DATEDIFF( (DATE_FORMAT(c.fecha, '%Y-%m-%d' ) ) , (current_date) ) AS dias
-			FROM cuotas AS c
-			INNER JOIN contratos AS ct ON c.contrato = ct.id
-			INNER JOIN clientes AS cl ON ct.cliente = cl.id
-			WHERE 
-			c.saldo != 0
-			AND
-			c.fecha <= '".date("Y-m-d")."' ORDER BY c.fecha ASC";
-		$carteras = DB::select($query_cartera);
+	{	
+		$edades_cartera = 'T';
+		if(Input::has('edades') && Input::get('edades') != 'T') {
+			$edades_cartera = Input::get('edades');	
+		}	
+	
+		DB::beginTransaction();	
+        try{
+			
+			$query_cartera = "SELECT ct.numero as contrato, c.cuota, c.saldo as saldo, 
+				cl.id as cliente, DATEDIFF( (DATE_FORMAT(c.fecha, '%Y-%m-%d' ) ) , (current_date) ) AS dias
+				FROM cuotas AS c
+				INNER JOIN contratos AS ct ON c.contrato = ct.id
+				INNER JOIN clientes AS cl ON ct.cliente = cl.id
+				WHERE 
+				c.saldo != 0
+				ORDER BY c.fecha ASC";
+			
+			$carteras = DB::select($query_cartera);
+			foreach ($carteras as $cartera) {
+				$cartera = (array) $cartera;
+				$report = new Report();
+				$report->cin1 = $cartera['cliente'];
+				if($cartera['dias'] >= 0) 
+					$report->cf1 = $cartera['saldo'];
+				else
+					$report->cf1 = 0;
+				if($cartera['dias'] <0 && $cartera['dias'] >=-30)
+					$report->cf2 = $cartera['saldo'];	
+				else	
+					$report->cf2 = 0;
+				if($cartera['dias'] <=-31 && $cartera['dias'] >=-60)
+					$report->cf3 = $cartera['saldo'];	
+				else
+					$report->cf3 = 0;			
+				if($cartera['dias'] <=-61 && $cartera['dias'] >=-90)
+					$report->cf4 = $cartera['saldo'];	
+				else
+					$report->cf4 = 0;		
+				if($cartera['dias'] <=-91 && $cartera['dias'] >=-180)
+					$report->cf5 = $cartera['saldo'];
+				else
+					$report->cf5 = 0;		
+				if($cartera['dias'] <=-181 && $cartera['dias'] >=-360)
+					$report->cf6 = $cartera['saldo'];	
+				else
+					$report->cf6 = 0;			
+				if($cartera['dias'] <-360)
+					$report->cf7 = $cartera['saldo'];	
+				else
+					$report->cf7 = 0;	
+				$report->cf8 = $cartera['saldo'];
+				$report->save();
+			}
+		}catch(\Exception $exception){
+		    DB::rollback();
+			return "$exception - Consulte al administrador.";
+		}
 
+		$query_reporte = "SELECT cin1 as cliente, cl.nombre as cliente_nombre,
+			sum(ar.cf1) as pv, sum(ar.cf2) as m3, sum(ar.cf3) as m6, 
+			sum(ar.cf4) as m9, sum(ar.cf5) as m18, sum(ar.cf6) as m36, 
+			sum(ar.cf7) as m_36, sum(ar.cf8) as total
+			FROM auxiliarreporte AS ar
+			INNER JOIN clientes AS cl ON cin1 = cl.id 
+			GROUP BY cliente
+			ORDER BY cl.nombre ASC";
+		$reporte = DB::select($query_reporte);
+		DB::rollback();
 		$output = '
 		<table>
 			<tfoot>
@@ -106,56 +161,63 @@ class Business_ReportsController extends \BaseController {
 			</tfoot>
 			<thead>
 			    <tr>
-			        <th>Contrato</th>
 			        <th>Cliente</th>
 			        <th>Nombre</th>
-			        <th>Vencimiento</th>
-			        <th>D 1 A 30</th>
-			        <th>D 31 A 60</th>
-			        <th>D 61 A 90</th>
-			        <th>D 91 A 180</th>
-			        <th>D 181 A 360</th>
-			        <th>MAS DE 360</th>			                                                               
-			    </tr>
+			        <th>Por vencer</th>';
+			        if($edades_cartera == 'T' || $edades_cartera == '30'){
+			        	$output.= '<th>D 1 A 30</th>';
+			        }
+			        if($edades_cartera == 'T' || $edades_cartera == '60'){
+			        	$output.= '<th>D 31 A 60</th>';
+			        }
+			        if($edades_cartera == 'T' || $edades_cartera == '90'){
+			        	$output.= '<th>D 61 A 90</th>';
+			        }
+			        if($edades_cartera == 'T' || $edades_cartera == '180'){
+			        	$output.= '<th>D 91 A 180</th>';
+			        }
+			        if($edades_cartera == 'T' || $edades_cartera == '360'){
+			        	$output.= '<th>D 181 A 360</th>';
+			        }
+			        if($edades_cartera == 'T' || $edades_cartera == '370'){
+			        	$output.= '<th>MAS DE 360</th>';
+			        }
+			        if($edades_cartera == 'T'){
+			        	$output.= '<th>TOTAL</th>';
+			        }
+			        			                                                               
+		$output.= '</tr>
 			</thead>
 			<tbody>';
-		foreach ($carteras as $cartera) {
+		foreach ($reporte as $cartera) {
 			$cartera = (array) $cartera;
 			$output.='
 		    <tr>
-		        <td>'.$cartera['contrato'].'</td>
 		        <td>'.$cartera['cliente'].'</td>
 		        <td>'.utf8_decode($cartera['cliente_nombre']).'</td>
-		        <td>'.$cartera['vencimiento'].'</td>';
-			//if($f['dias']>=0)
-			//	$q->addInsert("cdb2", $f['valor']);
-			//else
-			//	$q->addInsert("cdb2", 0);
-			if($cartera['dias']<0 && $cartera['dias']>=-30)
-				$output.='<td>'.$cartera['saldo'].'</td>';		
-			else	
-				$output.='<td>0</td>';	
-			if($cartera['dias']<=-31 && $cartera['dias']>=-60)
-				$output.='<td>'.$cartera['saldo'].'</td>';	
-			else
-				$output.='<td>0</td>';			
-			if($cartera['dias']<=-61 && $cartera['dias']>=-90)
-				$output.='<td>'.$cartera['saldo'].'</td>';	
-			else
-				$output.='<td>0</td>';			
-			if($cartera['dias']<=-91 && $cartera['dias']>=-180)
-				$output.='<td>'.$cartera['saldo'].'</td>';
-			else
-				$output.='<td>0</td>';		
-			if($cartera['dias']<=-181 && $cartera['dias']>=-360)
-				$output.='<td>'.$cartera['saldo'].'</td>';	
-			else
-				$output.='<td>0</td>';			
-			if($cartera['dias']<-360)
-				$output.='<td>'.$cartera['saldo'].'</td>';	
-			else
-				$output.='<td>0</td>';  
-		    $output.='</tr>';
+		        <td>'.$cartera['pv'].'</td>';
+		        if($edades_cartera == 'T' || $edades_cartera == '30'){
+		        	$output.= '<td>'.$cartera['m3'].'</td>';
+		        }
+		        if($edades_cartera == 'T' || $edades_cartera == '60'){
+		        	$output.= '<td>'.$cartera['m6'].'</td>';
+		        }
+		        if($edades_cartera == 'T' || $edades_cartera == '90'){
+		        	$output.= '<td>'.$cartera['m9'].'</td>';
+		        }
+		        if($edades_cartera == 'T' || $edades_cartera == '180'){
+		        	$output.= '<td>'.$cartera['m18'].'</td>';
+		        }
+		        if($edades_cartera == 'T' || $edades_cartera == '360'){
+		        	$output.= '<td>'.$cartera['m36'].'</td>';
+		        }
+		        if($edades_cartera == 'T' || $edades_cartera == '370'){
+		        	$output.= '<td>'.$cartera['m_36'].'</td>';
+		        }
+		        if($edades_cartera == 'T'){
+		        	$output.= '<td>'.$cartera['total'].'</td>';
+		        }
+			$output.= '</tr>';
 		}
 	
 		$output.='

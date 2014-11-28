@@ -27,7 +27,7 @@
 									'T' => 'Todas', '30' => '1 A 30', 
 									'60' => '31 A 60', '90' => '61 A 90',
 									'180' => '91 A 180', '360' => '181 A 360',
-									'M360' => 'MAS DE 360'),'T',array('class' => 'form-control', 'style' => 'width:30;')) 
+									'370' => 'MAS DE 360'),'T',array('class' => 'form-control', 'style' => 'width:30;')) 
 								}}
 								</div>
 								<div class="form-group col-md-3"></div>
