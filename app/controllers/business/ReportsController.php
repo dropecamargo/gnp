@@ -312,8 +312,100 @@ class Business_ReportsController extends \BaseController {
 
 	public function ventasPeriodo()
 	{
-		if (Input::has("detallado")) {         
-			return 'detallado';
+		if (Input::has("detallado")) {
+			$payment = new Payment();
+			$query_recibos = "SELECT rb.*, ct.numero as contrato_numero, 
+				cl.cedula as cliente_cedula, cl.nombre as cliente_nombre
+			FROM recibos as rb
+			INNER JOIN contratos AS ct ON rb.contrato = ct.id
+			INNER JOIN clientes AS cl ON ct.cliente = cl.id
+			WHERE	
+			rb.tipo = 'DV'
+			AND	
+			rb.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."' 
+			ORDER BY rb.fecha DESC";
+			$recibos = DB::select($query_recibos);
+
+
+			$query_contratos = "SELECT ct.*, 
+				cl.cedula as cliente_cedula, cl.nombre as cliente_nombre
+				FROM contratos as ct
+				INNER JOIN clientes AS cl ON ct.cliente = cl.id
+				WHERE
+				ct.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."' 
+				ORDER BY ct.fecha DESC";
+			$contratos = DB::select($query_contratos);
+
+        	$output = '
+			<table>
+				<tfoot>
+		            <tr>
+						<td colspan="8">GNP :: Software Ventas detalladas por periodo ('.Input::get("fecha_inicial").' - '.Input::get("fecha_final").') a '.date("Y-m-d H:i:s").'</td>
+		            </tr>
+				</tfoot>
+				<thead>
+					<tr><td colspan="8"></td></tr>
+					<tr><td colspan="8">VENTAS</td></tr>
+					<tr>
+				        <th>Contrato</th>
+				        <th>Fecha</th>
+				        <th>Cliente</th>
+				        <th>Nombre Cliente</th>
+				    	<th>Valor</th>
+				    </tr>';
+				foreach ($contratos as $contrato) {
+					$contrato = (array) $contrato;
+					$output.='
+				    <tr>
+				        <td>'.$contrato['numero'].'</td>
+				        <td>'.$contrato['fecha'].'</td>
+				        <td>'.$contrato['cliente_cedula'].'</td>
+				        <td>'.utf8_decode($contrato['cliente_nombre']).'</td>
+				        <td>'.$contrato['valor'].'</td>'
+				    .'</tr>';
+				}
+
+				$output.='
+					<tr><td colspan="8"></td></tr>
+					<tr><td colspan="8"></td></tr>
+					<tr><td colspan="8">DEVOLUCIONES</td></tr>
+				    <tr>
+				        <th>Recibo</th>
+				        <th>Fecha</th>
+				        <th>Contrato</th>
+				        <th>Cliente</th>
+				        <th>Nombre Cliente</th>
+				    	<th>Tipo</th>
+				    	<th>Valor</th>
+				    </tr>
+				</thead>';
+				foreach ($recibos as $recibo) {
+					$recibo = (array) $recibo;
+					$output.='
+				    <tr>
+				        <td>'.$recibo['numero'].'</td>
+				        <td>'.$recibo['fecha'].'</td>
+				        <td>'.$recibo['contrato_numero'].'</td>
+				        <td>'.$recibo['cliente_cedula'].'</td>
+				        <td>'.utf8_decode($recibo['cliente_nombre']).'</td>
+				        <td>'.utf8_decode($payment->types[$recibo['tipo']]).'</td>
+				        <td>'.$recibo['valor'].'</td>'
+				    .'</tr>';
+				}
+
+			$output.= '</table>';
+
+        	$headers = array(
+		        'Pragma' => 'public',
+		        'Expires' => 'public',
+		        'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+		        'Cache-Control' => 'private',
+		        'Content-Type' => 'application/vnd.ms-excel',
+		        'Content-Disposition' => 'attachment; filename=gnp_ventas_detalladas_periodo_'.date('Y-m-d').'.xls',
+		        'Content-Transfer-Encoding' => ' binary'
+		    );
+			return Response::make($output, 200, $headers);
+
         }else{
         	$query_ventas = "SELECT COALESCE(SUM(contratos.valor),0) as ventas
 				FROM contratos
