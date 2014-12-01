@@ -14,7 +14,7 @@
 		$('#form-cart-delete-products-contract_'+{{ $index }}).on('submit', function(event){                             
             var url = $(this).attr('action');
             event.preventDefault();
-			utilList.remove(url,$('#form-cart-delete-products-contract_'+{{ $index }}).serialize())
+			utilList.remove(url,$('#form-cart-delete-products-contract_'+{{ $index }}).serialize(), '{{ $layer }}')
 		});
 	});
 </script>

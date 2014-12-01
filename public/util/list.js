@@ -1,5 +1,5 @@
 var utilList = { 
-	store : function(url, data){
+	store : function(url, data, layer){
 		$.ajax({
             type: 'POST',
             cache: false,
@@ -12,8 +12,8 @@ var utilList = {
             success: function(data) {
                 $('#loading-app').modal('hide')
                 if(data.success == true) {
-                    $("#contract-list-products").empty().append(data.list);
-                    $("#contract-list-products").show();
+                    $("#"+layer).empty().append(data.list);
+                    $("#"+layer).show();
                 }else{
                 	$('#error-app').modal('show');                      
                 	$("#error-app-label").empty().html(data.error+" - Consulte al administrador.");               
@@ -26,7 +26,7 @@ var utilList = {
             }
         });	
 	},
-    remove : function(url, data){
+    remove : function(url, data, layer){
         $.ajax({
             type: 'POST',
             cache: false,
@@ -39,8 +39,8 @@ var utilList = {
             success: function(data) {
                 $('#loading-app').modal('hide')
                 if(data.success == true) {
-                    $("#contract-list-products").empty().append(data.list);
-                    $("#contract-list-products").show();
+                    $("#"+layer).empty().append(data.list);
+                    $("#"+layer).show();
                 }else{
                     $('#error-app').modal('show');                      
                     $("#error-app-label").empty().html(data.error+" - Consulte al administrador.");               

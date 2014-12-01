@@ -2,8 +2,7 @@
 	<thead>
 		<tr>
 			<th><span>&nbsp;</span></th>
-			<th>Producto</th>
-			<th>Cantidad</th>		
+			<th>Contrato</th>		
 		</tr>	
 	</thead>     	    	
 	<tbody>
@@ -12,15 +11,14 @@
 				{{--*/ $item = (object) $item; /*--}}
 				<tr>
 					<td align="center" width="20%;">
-						@include('/util/list/remove',array('layer' => 'contract-list-products')) 		
+						@include('/util/list/remove',array('layer' => 'planilla-list-contracts')) 		
 					</td>
-					<td width="60%;">{{ $item->producto_nombre }}</td>
-					<td align="center" width="20%;">{{ $item->cantidad }}</td>
+					<td width="60%;">{{ $item->contrato }}</td>
 				</tr>
 			@endforeach
 		@else
 			<tr>
-				<td align="center" colspan="3">No exiten productos en el carrito.</td>
+				<td align="center" colspan="3">No exiten contratos en el carrito.</td>
 			</tr>	
 		@endif
 	</tbody>

@@ -51,8 +51,12 @@ Route::group(array('before' => 'auth'), function()
 	Route::resource('business/reports', 'Business_ReportsController');
 	Route::post('business/reports/carteraedades', 'Business_ReportsController@carteraEdades');
 	Route::post('business/reports/estadocuenta', 'Business_ReportsController@estadoCuenta');
+	Route::post('business/reports/estadocuentapdf', 'Business_ReportsController@estadoCuentaPdf');
 	Route::post('business/reports/reciboscaja', 'Business_ReportsController@recibosCaja');
 	Route::post('business/reports/ventasperiodo', 'Business_ReportsController@ventasPeriodo');
+
+	// Rutas planilla de cobro 
+	Route::resource('business/planilla', 'Business_PlanillaController');
 
 	// Rutas session list UTIL 
 	Route::resource('util/cart', 'SessionCartController');	

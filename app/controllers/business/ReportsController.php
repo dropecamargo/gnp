@@ -236,8 +236,15 @@ class Business_ReportsController extends \BaseController {
 	}
 
 	public function estadoCuenta()
+	{	
+		$output = Report::getEstadoCuenta(Input::get('cliente'));
+		return View::make('business/reports/report_estado_cuenta',array('html' => $output, 'cliente' => Input::get('cliente')));
+	}
+
+	public function estadoCuentaPdf()
 	{
-		return 'Generando reporte estadoCuenta';
+		$output = Report::getEstadoCuenta(Input::get('cliente'));
+		return PDF::load($output, 'A4', 'portrait')->download('gnp_estado_cuenta_'.Input::get('cliente'));
 	}
 
 	public function recibosCaja()
@@ -316,14 +323,14 @@ class Business_ReportsController extends \BaseController {
 			$payment = new Payment();
 			$query_recibos = "SELECT rb.*, ct.numero as contrato_numero, 
 				cl.cedula as cliente_cedula, cl.nombre as cliente_nombre
-			FROM recibos as rb
-			INNER JOIN contratos AS ct ON rb.contrato = ct.id
-			INNER JOIN clientes AS cl ON ct.cliente = cl.id
-			WHERE	
-			rb.tipo = 'DV'
-			AND	
-			rb.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."' 
-			ORDER BY rb.fecha DESC";
+				FROM recibos as rb
+				INNER JOIN contratos AS ct ON rb.contrato = ct.id
+				INNER JOIN clientes AS cl ON ct.cliente = cl.id
+				WHERE	
+				rb.tipo = 'DV'
+				AND	
+				rb.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."' 
+				ORDER BY rb.fecha DESC";
 			$recibos = DB::select($query_recibos);
 
 

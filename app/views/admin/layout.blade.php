@@ -74,6 +74,10 @@
             
             <li>{{ HTML::link('/business/payments', 'Recibos de pago') }}</li>
             
+            @if (in_array(Auth::user()->perfil, array('A','C')))
+              <li>{{ HTML::link('/business/planilla', 'Planilla de Cobro') }}</li>
+            @endif
+
             @if (in_array(Auth::user()->perfil, array('A')))
               <li>{{ HTML::link('/business/reports', 'Reportes') }}</li>
             @endif
@@ -116,5 +120,6 @@
     <script src="{{ asset('js/ie10-viewport-bug-workaround.js') }}"></script>
     <script src="{{ asset('js/alertify.min.js') }}"></script>
     <script src="{{ asset('js/bootbox.min.js') }}"></script>
+    {{ HTML::script("util/list.js") }}
   </body>
 </html>

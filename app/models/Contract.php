@@ -44,7 +44,6 @@ class Contract extends Eloquent {
         }        
         $this->errors = $validator->errors();        
         return false;
-
     }
 
     public function suma_fechas($fecha,$ndias){

@@ -1,9 +1,5 @@
 @extends ('admin/layout')
 
-@section('scripts')
-	{{ HTML::script("util/list.js") }}
-@stop
-
 <?php
 	// Data contract
     if ($contract->exists):
@@ -247,7 +243,7 @@
 	            	alertify.error("Por favor ingrese cantidad.");
 	            	return
 	            }
-				utilList.store(url,$('#form-cart-products-contract').serialize())
+				utilList.store(url,$('#form-cart-products-contract').serialize(),'contract-list-products')
 			});
 		});
 	</script>

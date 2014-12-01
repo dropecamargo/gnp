@@ -49,7 +49,7 @@
 				</div>
 				<div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
 					<div class="panel-body">
-						{{ Form::open(array('url' => array('business/reports/estadocuenta'), 'method' => 'POST'), array('role' => 'form')) }}									
+						{{ Form::open(array('url' => array('business/reports/estadocuenta'), 'method' => 'POST', 'id' => 'form-reporte-estado-cuenta'), array('role' => 'form')) }}									
 							<div class="row" align="center">
 								<div class="form-group col-md-1"></div>
 								<div class="form-group col-md-3">
@@ -64,7 +64,7 @@
 								<div class="form-group col-md-1"></div>
 							</div>
 							<p align="center">
-								{{ Form::submit('Generar', array('class' => 'btn btn-info')) }}
+								{{ Form::button('Generar', array('class' => 'btn btn-info', 'id' => 'btn-submit-reporte-estado-cuenta' )) }}
 							</p>
 						{{ Form::close() }}
 					</div>
@@ -154,8 +154,15 @@
 	                changeYear: true,
 	                dateFormat: "yy-mm-dd"              
             	})
-
 	
+				$("#btn-submit-reporte-estado-cuenta").click(function() {
+		            if(!$("#cliente").val()){
+		            	alertify.error("Por favor seleccione cliente.");
+		            	return
+		            }
+					$("#form-reporte-estado-cuenta").submit();
+				});
+
             	$("#btn-submit-reporte-ventas").click(function() {
 					if(!$("#fecha_inicial").val()){
 		            	alertify.error("Por favor seleccione fecha inicial.");
