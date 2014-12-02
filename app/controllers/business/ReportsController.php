@@ -9,6 +9,13 @@ class Business_ReportsController extends \BaseController {
 	 */
 	public function index()
 	{
+		if(Request::ajax())
+        {
+        	$data['customers'] = $customers = Customer::getData();
+            $data["links"] = $customers->links();
+            $customers = View::make('business/reports/customers', $data)->render();
+            return Response::json(array('html' => $customers));
+        }
 		return View::make('business/reports/index');
 	}
 
@@ -243,7 +250,7 @@ class Business_ReportsController extends \BaseController {
 
 	public function estadoCuentaPdf()
 	{
-		$output = Report::getEstadoCuenta(Input::get('cliente'));
+		$output = Report::getEstadoCuentaPDF(Input::get('cliente'));
 		return PDF::load($output, 'A4', 'portrait')->download('gnp_estado_cuenta_'.Input::get('cliente'));
 	}
 
@@ -256,11 +263,12 @@ class Business_ReportsController extends \BaseController {
 		FROM recibos as rb
 		INNER JOIN contratos AS ct ON rb.contrato = ct.id
 		INNER JOIN clientes AS cl ON ct.cliente = cl.id
-		INNER JOIN empleados AS em ON rb.cobrador = em.id";
-
+		INNER JOIN empleados AS em ON rb.cobrador = em.id
+		WHERE
+		rb.fecha BETWEEN '".Input::get("fecha_inicial_reciboscaja")."' AND '".Input::get("fecha_final_reciboscaja")."'";
 		$tipo = '';
 		if(Input::has('tipo') && Input::get('tipo') != '0') {
-			$query_recibos.= " WHERE rb.tipo = '".Input::get('tipo')."'";
+			$query_recibos.= " AND rb.tipo = '".Input::get('tipo')."'";
 			$tipo = ' Tipo '.utf8_decode($payment->types[Input::get('tipo')]);
 		}
 
@@ -271,7 +279,7 @@ class Business_ReportsController extends \BaseController {
 		<table>
 			<tfoot>
 	            <tr>
-					<td colspan="8">GNP :: Software Recibos de caja a '.date("Y-m-d H:i:s").' '.$tipo.'</td>
+					<td colspan="8">GNP :: Software Recibos de caja a '.date("Y-m-d H:i:s").' por periodo ('.Input::get("fecha_inicial_reciboscaja").' - '.Input::get("fecha_final_reciboscaja").')'.$tipo.'</td>
 	            </tr>
 			</tfoot>
 			<thead>

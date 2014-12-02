@@ -54,16 +54,18 @@
 								<div class="form-group col-md-1"></div>
 								<div class="form-group col-md-3">
 									{{ Form::label('cliente_cedula', 'Cliente') }}
-						           	{{ Form::text('cliente_cedula', null, array('placeholder' => 'Ingrese cliente', 'class' => 'form-control')) }}        
+						           	{{ Form::text('cliente_cedula', null, array('placeholder' => 'Ingrese cédula', 'class' => 'form-control')) }}        
 						        	{{ Form::hidden('cliente', null, array('id' => 'cliente')) }}
 								</div>
 								<div class="form-group col-md-7">   
 									{{ Form::label('cliente_nombre', 'Nombre') }}     	
-						            {{ Form::text('cliente_nombre', null, array('class' => 'form-control', 'disabled' => 'disabled')) }}        
+						            {{ Form::text('cliente_nombre', null, array('placeholder' => 'Ingrese nombre', 'class' => 'form-control')) }}        
 						        </div>
 								<div class="form-group col-md-1"></div>
 							</div>
+							<div id="customers" class="row" align="center"></div>
 							<p align="center">
+								{{ Form::button('Buscar', array('class'=>'btn btn-primary', 'id' => 'btn-search-customers-reporte-estado-cuenta' )) }} 
 								{{ Form::button('Generar', array('class' => 'btn btn-info', 'id' => 'btn-submit-reporte-estado-cuenta' )) }}
 							</p>
 						{{ Form::close() }}
@@ -80,20 +82,32 @@
 				</div>
 				<div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
 					<div class="panel-body">
-						{{ Form::open(array('url' => array('business/reports/reciboscaja'), 'method' => 'POST'), array('role' => 'form')) }}									
+						{{ Form::open(array('url' => array('business/reports/reciboscaja'), 'method' => 'POST', 'id' => 'form-reporte-reciboscaja'), array('role' => 'form')) }}									
 							<div class="row" align="center">
-								<div class="form-group col-md-3"></div>
-								<div class="form-group col-md-6">
+								<div class="form-group col-md-1"></div>
+								<div class="form-group col-md-3">
+									{{ Form::label('fecha_inicial_reciboscaja', 'Fecha Inicial') }}
+						            <div class="input-append date">	
+						            	{{ Form::text('fecha_inicial_reciboscaja', date('Y-m-d'), array('placeholder' => 'yyyy-mm-dd', 'class' => 'form-control')) }}        
+						        	</div>
+								</div>
+								<div class="form-group col-md-3">
+									{{ Form::label('fecha_final_reciboscaja', 'Fecha Final') }}
+						            <div class="input-append date">	
+						            	{{ Form::text('fecha_final_reciboscaja', date('Y-m-d'), array('placeholder' => 'yyyy-mm-dd', 'class' => 'form-control')) }}        
+						        	</div>
+								</div>
+								<div class="form-group col-md-4">
 								{{ Form::label('tipo', 'Tipo') }}
 								{{ Form::select('tipo', array(
 									'0' => 'Todos', 'PA' => 'Pago', 'DE' => 'Descuento', 'DV' => 'Devolución'),
 									'T',array('class' => 'form-control', 'style' => 'width:30;')) 
 								}}
 								</div>
-								<div class="form-group col-md-3"></div>
+								<div class="form-group col-md-1"></div>
 							</div>
 							<p align="center">
-								{{ Form::submit('Generar', array('class' => 'btn btn-info')) }}
+								{{ Form::button('Generar', array('class' => 'btn btn-info', 'id' => 'btn-submit-reporte-reciboscaja' )) }}
 							</p>
 						{{ Form::close() }}
 					</div>
@@ -143,6 +157,32 @@
 			$(function() {	
 				var root_url = "<?php echo Request::root(); ?>/";
 
+				// Reporte recibos de caja
+				$("#fecha_inicial_reciboscaja").datepicker({
+	                changeMonth: true,
+	                changeYear: true,
+	                dateFormat: "yy-mm-dd"              
+            	})
+
+            	$("#fecha_final_reciboscaja").datepicker({
+	                changeMonth: true,
+	                changeYear: true,
+	                dateFormat: "yy-mm-dd"              
+            	})
+
+            	$("#btn-submit-reporte-reciboscaja").click(function() {
+					if(!$("#fecha_inicial_reciboscaja").val()){
+		            	alertify.error("Por favor seleccione fecha inicial.");
+		            	return
+		            }
+		            if(!$("#fecha_final_reciboscaja").val()){
+		            	alertify.error("Por favor seleccione fecha final.");
+		            	return
+		            }
+					$("#form-reporte-reciboscaja").submit();
+				});
+
+            	// Reporte ventas de un periodo
 				$("#fecha_inicial").datepicker({
 	                changeMonth: true,
 	                changeYear: true,
@@ -175,51 +215,37 @@
 					$("#form-reporte-ventas").submit();
 				});
 
-            	var event_client = function() {
-					var inputVal = $("#cliente_cedula").val();
-				    var numericReg = /^\d*[0-9](|.\d*[0-9]|,\d*[0-9])?$/;
-				    
-				    $('#cliente').val('')
-	        		$('#cliente_nombre').val('')
-
-				    if(!numericReg.test(inputVal)) {
-				    	$("#cliente_cedula").val('')
-				    }else{
-				    	var url = root_url + 'business/customers/find';
-				    	$.ajax({
-			                type: 'post',
-			                cache: false,
-			                dataType: 'json',
-			                data: { cedula : inputVal },
-			                url : url,
-			                beforeSend: function() {
-								$('#loading-app').modal('show');
-							},
-			                success: function(data) {
-			                	$('#loading-app').modal('hide')
-			                	if(data.success == false) {
-									$('#cedula').val(inputVal)									
-			                	}else{		                	
-			                		$('#cliente').val(data.customer.id)
-		                    		$('#cliente_cedula').val(data.customer.cedula)
-		                    		$('#cliente_nombre').val(data.customer.nombre)	
-			                	}
-			                	$('#modal-client').modal('show')		                	
-			                },
-			                error: function(xhr, textStatus, thrownError) {
-								$('#loading-app').modal('hide');
-								$('#error-app').modal('show');
-								$("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");				
-			                }
-			            });											
-					}				
-				};
-
-				$("#cliente_cedula").change(function() {
-					event_client();	
-				});
-
+            	// Reporte estado de cuenta
+            	$("#btn-search-customers-reporte-estado-cuenta").click(function( event ) {  
+					var url = root_url + 'business/reports';	
+					$.ajax({	
+						url: url,		
+						type : 'get',
+						data: $('#form-reporte-estado-cuenta').serialize(),	
+						datatype: "html",
+						beforeSend: function() {
+							$('#loading-app').modal('show')
+						}
+					})
+					.done(function(data) {		
+						$('#loading-app').modal('hide')
+						$('#customers').empty().html(data.html)
+					})
+					.fail(function(jqXHR, ajaxOptions, thrownError)
+					{
+						$('#loading-app').modal('hide');
+						$('#error-app').modal('show');
+						$("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");				
+					});	
+				})
 			});
+			var estadoCuenta = {
+				setCustomer : function(cliente, cedula, nombre){
+					$('#cliente_cedula').val(cedula)
+					$('#cliente_nombre').val(nombre)
+					$('#cliente').val(cliente)				
+				}
+			}
 		</script>
 	@else
 		@include('denied')
