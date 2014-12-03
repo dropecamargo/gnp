@@ -12,7 +12,7 @@ class Planilla extends Eloquent {
 
 	public $errors;
 
-    protected $perPage = 1;
+    protected $perPage = 6;
 
     public static $key_cart_contracts = 'key_cart_planilla_contracts';
 
@@ -46,5 +46,9 @@ class Planilla extends Eloquent {
         }      
         $query->orderby('planilla.fecha', 'DESC');
         return $query->paginate();
+    }
+
+    public function setZonaAttribute($zona){
+        $this->attributes['zona'] = strtoupper($zona);
     }
 }

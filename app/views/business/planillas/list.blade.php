@@ -17,7 +17,7 @@
 	<div class="row" align="center">
 		<button type="submit" class="btn btn-primary">Buscar</button>
 		{{Form::button('Limpiar', array('class'=>'btn btn-primary', 'id' => 'button-clear-search-planillas' ));}} 
-		{{--*/ $allowed = array('A','C') /*--}}
+		{{--*/ $allowed = array('A') /*--}}
     	@if (in_array(Auth::user()->perfil, $allowed))
 			<a href="{{ route('business.planilla.create') }}" class="btn btn-primary">Nueva Planilla</a>			
 		@endif

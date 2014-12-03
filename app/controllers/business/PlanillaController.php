@@ -34,7 +34,9 @@ class Business_PlanillaController extends \BaseController {
 		$collectors = Employee::whereRaw('cargo = ? and activo = true', array('C'))->lists('nombre', 'id');        
         // Elimino datos carrito de session
         Session::forget(Planilla::$key_cart_contracts);
-        return View::make('business/planillas/form')->with(array('planilla' => $planilla, 'collectors' => $collectors));		
+        return View::make('business/planillas/form')->with(array(
+        	'planilla' => $planilla, 'collectors' => $collectors, 'HtmlContracts' => ''
+        ));		
 	}
 
 
@@ -58,10 +60,29 @@ class Business_PlanillaController extends \BaseController {
 		        $contracts = Session::get(Planilla::$key_cart_contracts);
 		        if(count($contracts) > 0){
 			        foreach ($contracts as $contract) {
-			        	$contract = (object) $contract;
+						$contract = (object) $contract;
+			        	
+			        	// Recupero Contrato
+						$objContract = Contract::where('numero', '=', $contract->contrato)->first();
+						if(!is_object($objContract)){
+							DB::rollback();
+							$errors = View::make('exception', array('exception' =>  "Contrato #".$contract->contrato." NO EXISTE.</br>Por favor ingrese un numero valido."))->render();
+				    		return Response::json(array('success' => false, 'errors' => $errors));
+						}
+
+						// Valido Contrato Planilla
+						$objPContrato = PlanillaContrato::where('planilla', '=', $planilla->id)
+							->where('contrato', '=', $objContract->id)
+							->first();
+						if(is_object($objPContrato)){
+							DB::rollback();
+							$errors = View::make('exception', array('exception' =>  "Contrato #".$contract->contrato." YA EXISTE en la planilla."))->render();
+				    		return Response::json(array('success' => false, 'errors' => $errors));
+						}
+
 			        	$planilla_contract = new PlanillaContrato();
 			        	$planilla_contract->planilla = $planilla->id;
-			        	$planilla_contract->contrato = $contract->contrato;
+			        	$planilla_contract->contrato = $objContract->id;
 			        	$planilla_contract->save();
 			        }	
 		        } 
@@ -69,12 +90,10 @@ class Business_PlanillaController extends \BaseController {
 			    DB::rollback();
 				return Response::json(array('success' => false, 'errors' =>  "$exception - Consulte al administrador."));
 			}
-			DB::rollback();
-			return Response::json(array('success' => false, 'errors' => '@dropecamargo'));
 
-			//DB::commit();
+			DB::commit();
         	if(Request::ajax()) {        	    
-        	    return Response::json(array('success' => true, 'contract' => $contract));
+        	    return Response::json(array('success' => true, 'planilla' => $planilla));
         	}
         	return Redirect::route('business.planillas.index'); 
       	}else{
@@ -92,8 +111,29 @@ class Business_PlanillaController extends \BaseController {
 	 * @return Response
 	 */
 	public function show($id)
-	{
-		//
+	{	
+		$planilla = Planilla::find($id);		
+        if (is_null($planilla)) {
+            App::abort(404);   
+        }
+        $collector = Employee::find($planilla->cobrador);
+        if (is_null($collector)) {
+            App::abort(404);   
+        }
+
+       	$query = Contract::query();      
+        $query->select('contratos.numero',DB::raw('SUM(cuotas.saldo) as saldo'));
+        $query->join('planillac', 'contratos.id', '=', 'planillac.contrato');
+        $query->join('cuotas', 'contratos.id', '=', 'cuotas.contrato');
+        $query->where('planillac.planilla','=',$planilla->id);         
+        $query->groupBy('contratos.id');         
+ 		$query->havingRaw('saldo > 0'); 
+        $query->orderby('contratos.fecha', 'ASC');
+        $contracts = $query->get();
+
+        return View::make('business/planillas/show', array('planilla' => $planilla,
+			'collector' => $collector, 'contracts' => $contracts
+		));
 	}
 
 
@@ -105,7 +145,30 @@ class Business_PlanillaController extends \BaseController {
 	 */
 	public function edit($id)
 	{
-		//
+		$planilla = Planilla::find($id);
+        if (is_null ($planilla)) {
+            App::abort(404);
+        }
+		$collectors = Employee::whereRaw('cargo = ? and activo = true', array('C'))->lists('nombre', 'id');        
+       	
+		// Elimino datos carrito de session
+        Session::forget(Planilla::$key_cart_contracts);
+       	// Cargo datos carrito de session
+        $contracts = PlanillaContrato::select('contratos.numero as contrato')
+			->join('contratos', 'contratos.id', '=', 'planillac.contrato')
+        	->where('planillac.planilla','=',$planilla->id)
+        	->get();
+
+        foreach ($contracts as $contract) {
+        	$contract->_key = Planilla::$key_cart_contracts;
+        	$contract->_template = Planilla::$template_cart_contracts;
+        	Session::push(Planilla::$key_cart_contracts, $contract);	
+        }
+		$HtmlContracts = SessionCart::show(Planilla::$key_cart_contracts,Planilla::$template_cart_contracts);
+
+       	return View::make('business/planillas/form')->with(array(
+       		'planilla' => $planilla, 'collectors' => $collectors, 'HtmlContracts' => $HtmlContracts
+       	));		
 	}
 
 
@@ -117,7 +180,67 @@ class Business_PlanillaController extends \BaseController {
 	 */
 	public function update($id)
 	{
-		//
+	    $planilla = Planilla::find($id);
+        if (is_null ($planilla)) {
+        	if(Request::ajax()) {
+            	return Response::json(array('success' => false, 'errors' => 'Error recuperando planilla - Consulte al administrador'));	
+            }
+            App::abort(404);
+        }
+
+        $data = Input::all();
+        if ($planilla->isValid($data)){
+        	DB::beginTransaction();	
+        	try{
+	        	$planilla->fill($data);
+	        	$planilla->save();
+	        	// Elimino contratos planilla para reconstruir
+	        	PlanillaContrato::where('planillac.planilla','=',$planilla->id)->delete();
+	        	// Ingresando contratos 
+		        $contracts = Session::get(Planilla::$key_cart_contracts);
+		        if(count($contracts) > 0){
+			        foreach ($contracts as $contract) {
+						$contract = (object) $contract;
+			        	
+			        	// Recupero Contrato
+						$objContract = Contract::where('numero', '=', $contract->contrato)->first();
+						if(!is_object($objContract)){
+							DB::rollback();
+							$errors = View::make('exception', array('exception' =>  "Contrato #".$contract->contrato." NO EXISTE.</br>Por favor ingrese un numero valido."))->render();
+				    		return Response::json(array('success' => false, 'errors' => $errors));
+						}
+
+						// Valido Contrato Planilla
+						$objPContrato = PlanillaContrato::where('planilla', '=', $planilla->id)
+							->where('contrato', '=', $objContract->id)
+							->first();
+						if(is_object($objPContrato)){
+							DB::rollback();
+							$errors = View::make('exception', array('exception' =>  "Contrato #".$contract->contrato." YA EXISTE en la planilla."))->render();
+				    		return Response::json(array('success' => false, 'errors' => $errors));
+						}
+
+			        	$planilla_contract = new PlanillaContrato();
+			        	$planilla_contract->planilla = $planilla->id;
+			        	$planilla_contract->contrato = $objContract->id;
+			        	$planilla_contract->save();
+			        }	
+		        }
+	        }catch(\Exception $exception){
+			    DB::rollback();
+				$errors = View::make('exception', array('exception' => $exception))->render();
+	    		return Response::json(array('success' => false, 'errors' => $errors));
+			}
+			DB::commit();
+			if(Request::ajax()) {        	    
+        	    return Response::json(array('success' => true, 'planilla' => $planilla));
+        	}
+        	return Redirect::route('business.products.index');
+        }else{
+  			$data["errors"] = $planilla->errors;
+        	$errors = View::make('errors', $data)->render();
+    		return Response::json(array('success' => false, 'errors' => $errors));
+      	}
 	}
 
 
@@ -132,5 +255,87 @@ class Business_PlanillaController extends \BaseController {
 		//
 	}
 
+	public function planillaCobroPdf()
+	{
+		$planilla = Planilla::find(Input::get('planilla'));		
+        if (is_null($planilla)) {
+            App::abort(404);   
+        }
+        $collector = Employee::find($planilla->cobrador);
+        if (is_null($collector)) {
+            App::abort(404);   
+        }
 
+       	$query = Contract::query();      
+        $query->select('contratos.numero',DB::raw('SUM(cuotas.saldo) as saldo'));
+        $query->join('planillac', 'contratos.id', '=', 'planillac.contrato');
+        $query->join('cuotas', 'contratos.id', '=', 'cuotas.contrato');
+        $query->where('planillac.planilla','=',$planilla->id);         
+        $query->groupBy('contratos.id');         
+ 		$query->havingRaw('saldo > 0'); 
+        $query->orderby('contratos.fecha', 'ASC');
+        $contracts = $query->get();
+
+        $output = '
+			<table style="border-collapse: collapse; border: 1px solid black; width: 100%;">
+				<thead>
+		            <tr><th colspan="2" align="center" style="border: 1px solid black;">GNP :: Software</th></tr>
+		            <tr><th colspan="2" align="center" style="border: 1px solid black;">PLANILLA COBRANZA</th></tr>
+		            <tr>
+						<td align="left" width="20%" style="border: 1px solid black;">ZONA</td>
+						<td align="left" width="80%" style="border: 1px solid black;">'.$planilla->zona.'</td>
+		            </tr>
+		            <tr>
+						<td align="left" width="20%" style="border: 1px solid black;">FECHA</td>
+						<td align="left" width="80%" style="border: 1px solid black;">'.$planilla->fecha.'</td>
+		            </tr>
+				</thead>
+			</table><br/>
+
+			<table style="width: 100%;">
+				<thead>
+		            <tr>
+						<th colspan="2" align="left" width="100%">'.utf8_decode($collector->nombre).'</th>
+		            </tr>
+				</thead>
+			</table>
+
+			<table style="border-collapse: collapse; border: 1px solid black; width: 100%;">
+				<thead>
+		            <tr>
+						<th align="center" width="5%" style="border: 1px solid black;"></th>
+						<th align="center" width="15%" style="border: 1px solid black;">NUMERO</th>
+						<th align="center" width="35%" style="border: 1px solid black;">OBSERVACION</th>
+						<th align="center" width="15%" style="border: 1px solid black;">SALDO</th>
+						<th align="center" width="15%" style="border: 1px solid black;">R.D.P N.</th>
+						<th align="center" width="15%" style="border: 1px solid black;">TOTAL</th>
+		            </tr>
+				</thead>
+				<tbody>';
+				if(count($contracts) > 0){   
+					$item = 1; 	                
+		            foreach ($contracts as $contract){
+		                $output .='
+		                <tr>
+		                    <td align="right" style="border: 1px solid black;">'.$item.'</td>
+		                    <td align="right" style="border: 1px solid black;">'.$contract->numero.'</td>
+		                    <td style="border: 1px solid black;"></td>
+		                    <td style="border: 1px solid black; text-align:right;">'.number_format(round($contract->saldo), 2,'.',',' ).'</td>
+		                	<td style="border: 1px solid black;"></td>
+		                	<td style="border: 1px solid black;"></td>
+		                </tr>';
+		                $item++;
+		            }
+			   	}else{   					
+			   		$output .='
+			   		<tr>
+						<td align="center" colspan="6" width="100%">No exiten contratos para la planilla.</td>
+					</tr>';	
+				}
+			$output .='
+				</tbody>
+			</table>';
+
+		return PDF::load($output, 'A4', 'portrait')->download('gnp_planilla_cobro'.$planilla->id);
+	}
 }

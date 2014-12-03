@@ -55,9 +55,10 @@
 		{{ Form::hidden('_layer', Planilla::$key_cart_contracts) }}
 		{{ Form::hidden('_key', Planilla::$key_cart_contracts) }}
 		{{ Form::hidden('_template', Planilla::$template_cart_contracts) }}
-		<div class="form-group col-md-2">
+		<div class="form-group col-md-4"></div>
+        <div class="form-group col-md-3">
             {{ Form::label('contrato', 'Contrato') }}
-        	{{ Form::text('contrato', null, array('placeholder' => 'Cantidad', 'class' => 'form-control')) }}        
+        	{{ Form::text('contrato', null, array('placeholder' => 'Contrato', 'class' => 'form-control')) }}        
         </div>
         <div class="form-group col-md-1">
         	<label><span>&nbsp;</span></label>
@@ -65,10 +66,12 @@
 				<span class="glyphicon glyphicon-plus-sign"></span>
 			</button>
         </div>
-        <div class="form-group col-md-2"></div>
+        <div class="form-group col-md-4"></div>
     </div>
     {{ Form::close() }}
-    <div id="planilla-list-contracts" style="display:none;"></div>
+    <div id="planilla-list-contracts">
+        {{ $HtmlContracts }}
+    </div>
 
     <script type="text/javascript">
 		$(function() {

@@ -7,8 +7,11 @@
 			<th>Numero</th>	
 			<th>Fecha</th>
 			<th>Cobrador</th>
-			<th>Zona</th>		
-			<th>&nbsp;</th>
+			<th>Zona</th>
+			{{--*/ $allowed = array('A') /*--}}		
+			@if (in_array(Auth::user()->perfil, $allowed))	
+				<th>&nbsp;</th>
+			@endif
 		</tr>	
 	</thead>     	    	
 	<tbody>
@@ -18,9 +21,11 @@
 				<td>{{ $planilla->fecha }}</td>
 				<td>{{ $planilla->cobrador_nombre }}</td>
 				<td>{{ $planilla->zona }}</td>
+				@if (in_array(Auth::user()->perfil, $allowed))
 				<td nowrap="nowrap">					
 					<a href="{{ route('business.planilla.show', $planilla->id) }}" class="btn btn-info">Ver</a>
 				</td>
+				@endif
 			</tr>
 		@endforeach
 	</tbody>

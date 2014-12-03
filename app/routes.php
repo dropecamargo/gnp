@@ -57,6 +57,7 @@ Route::group(array('before' => 'auth'), function()
 
 	// Rutas planilla de cobro 
 	Route::resource('business/planilla', 'Business_PlanillaController');
+	Route::post('business/planilla/planillacobropdf', 'Business_PlanillaController@planillaCobroPdf');
 
 	// Rutas session list UTIL 
 	Route::resource('util/cart', 'SessionCartController');	
