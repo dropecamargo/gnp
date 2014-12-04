@@ -178,7 +178,8 @@ class Business_ContractsController extends \BaseController {
 	public function find()
     {
 		$contrato = Input::get('contrato');
-		$query = "SELECT contratos.id, clientes.nombre as cliente_nombre, SUM(cuotas.saldo) as contrato_saldo 
+		$query = "SELECT contratos.id, contratos.numero, 
+			clientes.nombre as cliente_nombre, SUM(cuotas.saldo) as contrato_saldo 
 			from contratos 
 			inner join clientes on contratos.cliente = clientes.id 
 			inner join cuotas on cuotas.contrato = contratos.id 

@@ -55,10 +55,15 @@
 		{{ Form::hidden('_layer', Planilla::$key_cart_contracts) }}
 		{{ Form::hidden('_key', Planilla::$key_cart_contracts) }}
 		{{ Form::hidden('_template', Planilla::$template_cart_contracts) }}
-		<div class="form-group col-md-4"></div>
+		<div class="form-group col-md-3"></div>
         <div class="form-group col-md-3">
             {{ Form::label('contrato', 'Contrato') }}
         	{{ Form::text('contrato', null, array('placeholder' => 'Contrato', 'class' => 'form-control')) }}        
+        </div>
+        <div class="form-group col-md-2">
+            {{ Form::label('contrato_saldo', 'Saldo') }}
+            {{ Form::text('contrato_saldo', null, array('class' => 'form-control', 'disabled' => 'disabled')) }}
+            {{ Form::hidden('saldo', null, array('id' => 'saldo')) }}
         </div>
         <div class="form-group col-md-1">
         	<label><span>&nbsp;</span></label>
@@ -66,7 +71,7 @@
 				<span class="glyphicon glyphicon-plus-sign"></span>
 			</button>
         </div>
-        <div class="form-group col-md-4"></div>
+        <div class="form-group col-md-3"></div>
     </div>
     {{ Form::close() }}
     <div id="planilla-list-contracts">
@@ -123,8 +128,52 @@
 	            	alertify.error("Por favor ingrese numero de contrato.");
 	            	return
 	            }
-				utilList.store(url,$('#form-cart-contract-planilla').serialize(),'planilla-list-contracts')
-			});
+                utilList.store(url,$('#form-cart-contract-planilla').serialize(),'planilla-list-contracts')
+                $('#contrato').val('')
+                $('#saldo').val('')
+                $('#contrato_saldo').val('')
+            });
+
+             $("#contrato").change(function() {
+                var inputVal = $("#contrato").val();
+                var numericReg = /^\d*[0-9](|.\d*[0-9]|,\d*[0-9])?$/;
+                
+                $('#saldo').val('')
+                $('#contrato_saldo').val('')
+
+                if(!numericReg.test(inputVal)) {
+                    $("#contrato").val('')
+                }else{
+                    var url = root_url + 'business/contracts/find';                    
+                    $.ajax({
+                        type: 'post',
+                        cache: false,
+                        dataType: 'json',
+                        data: { contrato : inputVal },
+                        url : url,
+                        beforeSend: function() {
+                            $('#loading-app').modal('show');
+                        },
+                        success: function(data) {
+                            $('#loading-app').modal('hide')
+                            if(data.success == true) {                                                   
+                                $('#contrato').val(data.contract.numero)
+                                $('#saldo').val(data.contract.contrato_saldo)
+                                $('#contrato_saldo').val(data.contract.contrato_saldo) 
+                            }else{
+                                $("#contrato").val('')
+                                $("#saldo").val('')
+                                alertify.error("No existe contrato.");
+                            }
+                        },
+                        error: function(xhr, textStatus, thrownError) {
+                            $('#loading-app').modal('hide');
+                            $('#error-app').modal('show');
+                            $("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");               
+                        }
+                    });
+                }
+            });
 		});
 	</script>
 @stop

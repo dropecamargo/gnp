@@ -128,7 +128,7 @@ class Business_PlanillaController extends \BaseController {
         $query->where('planillac.planilla','=',$planilla->id);         
         $query->groupBy('contratos.id');         
  		$query->havingRaw('saldo > 0'); 
-        $query->orderby('contratos.fecha', 'ASC');
+        $query->orderby('contratos.numero', 'ASC');
         $contracts = $query->get();
 
         return View::make('business/planillas/show', array('planilla' => $planilla,
@@ -154,10 +154,15 @@ class Business_PlanillaController extends \BaseController {
 		// Elimino datos carrito de session
         Session::forget(Planilla::$key_cart_contracts);
        	// Cargo datos carrito de session
-        $contracts = PlanillaContrato::select('contratos.numero as contrato')
-			->join('contratos', 'contratos.id', '=', 'planillac.contrato')
-        	->where('planillac.planilla','=',$planilla->id)
-        	->get();
+        $query = Contract::query();      
+        $query->select('contratos.numero as contrato',DB::raw('SUM(cuotas.saldo) as saldo'));
+        $query->join('planillac', 'contratos.id', '=', 'planillac.contrato');
+        $query->join('cuotas', 'contratos.id', '=', 'cuotas.contrato');
+        $query->where('planillac.planilla','=',$planilla->id);         
+        $query->groupBy('contratos.id');         
+ 		$query->havingRaw('saldo > 0'); 
+        $query->orderby('contratos.numero', 'ASC');
+        $contracts = $query->get();
 
         foreach ($contracts as $contract) {
         	$contract->_key = Planilla::$key_cart_contracts;
@@ -273,7 +278,7 @@ class Business_PlanillaController extends \BaseController {
         $query->where('planillac.planilla','=',$planilla->id);         
         $query->groupBy('contratos.id');         
  		$query->havingRaw('saldo > 0'); 
-        $query->orderby('contratos.fecha', 'ASC');
+        $query->orderby('contratos.numero', 'ASC');
         $contracts = $query->get();
 
         $output = '
