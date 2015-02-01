@@ -33,7 +33,7 @@ class Business_ContractsController extends \BaseController {
     	$products = Product::lists('nombre', 'id');
         // Elimino datos carrito de session
         Session::forget(Contract::$key_cart_products);
-        return View::make('business/contracts/form')->with($arrayName = array('contract' => $contract, 'vendors' => $vendors, 'products' => $products));
+        return View::make('business/contracts/form')->with(array('contract' => $contract, 'vendors' => $vendors, 'products' => $products));
 	}
 
 
@@ -148,7 +148,43 @@ class Business_ContractsController extends \BaseController {
 	 */
 	public function edit($id)
 	{
-		//
+		$contract = Contract::find($id);		
+        if (is_null($contract)) {
+            App::abort(404);   
+        } 
+        $customer = Customer::find($contract->cliente);
+        if (is_null($customer)) {
+            App::abort(404);   
+        }
+        $vendor = Employee::find($contract->vendedor);
+        if (is_null($vendor)) {
+            App::abort(404);   
+        }
+
+        $vendors = Employee::whereRaw('cargo = ? and activo = true', array('V'))->lists('nombre', 'id');
+    	$products = Product::lists('nombre', 'id');
+
+        // Elimino datos carrito de session
+        Session::forget(Contract::$key_cart_products);
+		// Recuperar productos contrato
+        $arproducts = ContractProduct::select('contratop.id','productos.nombre','contratop.cantidad')
+        	->join('productos', 'productos.id', '=', 'contratop.producto')
+        	->where('contratop.devolucion', '=', '0')
+        	->where('contrato', '=', $contract->id)->get();
+        foreach ($arproducts as $producto) {
+        	$item = array();
+        	$item['_key'] = Contract::$key_cart_products;
+        	$item['_template'] = Contract::$template_cart_products;
+			$item['producto'] = $producto->id;
+        	$item['producto_nombre'] = $producto->nombre;
+        	$item['cantidad'] = $producto->cantidad;
+        	SessionCart::addItem($item);
+        }
+        $html_products = SessionCart::show(Contract::$key_cart_products, Contract::$template_cart_products);
+        
+      	return View::make('business/contracts/edit', array('contract' => $contract, 
+        	'customer' => $customer, 'vendor' => $vendor, 'vendors' => $vendors, 'products' => $products, 
+        	'html_products' => $html_products));
 	}
 
 
@@ -160,7 +196,34 @@ class Business_ContractsController extends \BaseController {
 	 */
 	public function update($id)
 	{
-		//
+		$contract = Contract::find($id);		
+        if (is_null($contract)) {
+            App::abort(404);   
+        }       
+        $data = Input::all();
+        if ($contract->isValid($data)){      		        	
+        	DB::beginTransaction();	
+        	try{
+        		$contract->fill($data);	        			
+        		$contract->save();   
+
+        	}catch(\Exception $exception){
+			    DB::rollback();
+				return Response::json(array('success' => false, 'errors' =>  "$exception - Consulte al administrador."));
+			}
+			DB::commit();
+        	if(Request::ajax()) {        	    
+        	    return Response::json(array('success' => true, 'contract' => $contract));
+        	}
+        	return Redirect::route('business.contracts.index');     	
+      	}else{
+      		if(Request::ajax()) {
+        		$data["errors"] = $contract->errors;
+            	$errors = View::make('errors', $data)->render();
+        		return Response::json(array('success' => false, 'errors' => $errors));
+			} 
+            return Redirect::route('business.contracts.create')->withInput()->withErrors($contract->errors);	
+      	}
 	}
 
 

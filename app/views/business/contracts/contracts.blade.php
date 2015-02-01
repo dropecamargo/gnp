@@ -22,6 +22,7 @@
 				<td><?php echo number_format(round($contract->saldo,-1), 2,'.',',' ) ?></td>
 				<td nowrap="nowrap">					
 					<a href="{{ route('business.contracts.show', $contract->id) }}" class="btn btn-info">Ver</a>
+					<a href="{{ route('business.contracts.edit', $contract->id) }}" class="btn btn-primary">Editar</a>					
 				</td>
 			</tr>
 		@endforeach

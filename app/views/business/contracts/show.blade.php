@@ -106,4 +106,8 @@
             @endforeach
         </tbody>
     </table> 
+
+    <p>
+        <a href="{{ route('business.contracts.edit', $contract->id) }}" class="btn btn-primary">Editar</a>                  
+    </p>
 @stop 

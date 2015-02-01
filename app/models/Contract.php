@@ -21,7 +21,7 @@ class Contract extends Eloquent {
 	public function isValid($data)
     {
         $rules = array(            
-            'numero' => 'required|min:1|max:10|unique:contratos|regex:[^[0-9]*$]',            
+            'numero' => 'required|min:1|max:10|unique:contratos',            
             'fecha' => 'required|date_format:Y-m-d',
             'cliente_cedula' => 'required|min:5|max:15',
             'cliente' => 'required|numeric',
