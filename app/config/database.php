@@ -55,9 +55,9 @@ return array(
 		'mysql' => array(
 			'driver'    => 'mysql',
 			'host'      => 'localhost',
-			'database'  => 'gnp',
-			'username'  => 'root',
-			'password'  => 'password',
+			'database'  => (Request::getHost() == 'duitama.gruponaturalpower.in') ? 'gruponat_gnp_duitama' : 'gruponat_gnp',
+			'username'  => 'gruponat_gnp',
+			'password'  => '1280Almas',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',

@@ -163,7 +163,7 @@ class Business_ReportsController extends \BaseController {
 		<table>
 			<tfoot>
 	            <tr>
-					<td colspan="10">GNP :: Software Cartera vencida por edades a '.date("Y-m-d H:i:s").'</td>
+					<td colspan="10">GNP :: Software '.User::getNameVersion().' Cartera vencida por edades a '.date("Y-m-d H:i:s").'</td>
 	            </tr>
 			</tfoot>
 			<thead>
@@ -196,6 +196,7 @@ class Business_ReportsController extends \BaseController {
 		$output.= '</tr>
 			</thead>
 			<tbody>';
+		$total_pv = 0; $total_m3 = 0; $total_m6 = 0; $total_m9 = 0; $total_m18 = 0; $total_m36 = 0; $total_m_36 = 0; $total_general = 0;
 		foreach ($reporte as $cartera) {
 			$cartera = (array) $cartera;
 			$output.='
@@ -225,8 +226,31 @@ class Business_ReportsController extends \BaseController {
 		        	$output.= '<td>'.$cartera['total'].'</td>';
 		        }
 			$output.= '</tr>';
+
+			$total_pv += $cartera['pv'];
+			$total_m3 += $cartera['m3'];
+			$total_m6 += $cartera['m6'];
+			$total_m9 += $cartera['m9'];
+			$total_m18 += $cartera['m18'];
+			$total_m36 += $cartera['m36'];
+			$total_m_36 += $cartera['m_36'];
+			$total_general += $cartera['total'];
 		}
-	
+		
+		$output.='
+		    <tr>
+		        <td></td>
+		        <th>TOTAL</th>
+		        <th>'.$total_pv.'</th>
+		        <th>'.$total_m3.'</th>
+		        <th>'.$total_m6.'</th>
+		        <th>'.$total_m9.'</th>
+		        <th>'.$total_m18.'</th>
+		        <th>'.$total_m36.'</th>
+		        <th>'.$total_m_36.'</th>
+		        <th>'.$total_general.'</th>
+		    <tr>';
+
 		$output.='
 			</tbody>
 		</table>';
@@ -279,7 +303,7 @@ class Business_ReportsController extends \BaseController {
 		<table>
 			<tfoot>
 	            <tr>
-					<td colspan="8">GNP :: Software Recibos de caja a '.date("Y-m-d H:i:s").' por periodo ('.Input::get("fecha_inicial_reciboscaja").' - '.Input::get("fecha_final_reciboscaja").')'.$tipo.'</td>
+					<td colspan="8">GNP :: Software '.User::getNameVersion().' Recibos de caja a '.date("Y-m-d H:i:s").' por periodo ('.Input::get("fecha_inicial_reciboscaja").' - '.Input::get("fecha_final_reciboscaja").')'.$tipo.'</td>
 	            </tr>
 			</tfoot>
 			<thead>
@@ -295,6 +319,8 @@ class Business_ReportsController extends \BaseController {
 			    </tr>
 			</thead>
 			<tbody>';
+
+		$suma_total = 0;
 		foreach ($recibos as $recibo) {
 			$recibo = (array) $recibo;
 			$output.='
@@ -308,7 +334,14 @@ class Business_ReportsController extends \BaseController {
 		        <td>'.utf8_decode($payment->types[$recibo['tipo']]).'</td>
 		        <td>'.$recibo['valor'].'</td>'
 		    .'</tr>';
+		    $suma_total += $recibo['valor'];
 		}
+		$output.='
+		    <tr>
+		        <td colspan="6"></td>
+		        <th>TOTAL</th>
+		        <th>'.$suma_total.'</th>
+		    <tr>';
 
 		$output.='
 			</tbody>
@@ -355,7 +388,7 @@ class Business_ReportsController extends \BaseController {
 			<table>
 				<tfoot>
 		            <tr>
-						<td colspan="8">GNP :: Software Ventas detalladas por periodo ('.Input::get("fecha_inicial").' - '.Input::get("fecha_final").') a '.date("Y-m-d H:i:s").'</td>
+						<td colspan="8">GNP :: Software '.User::getNameVersion().' Ventas detalladas por periodo ('.Input::get("fecha_inicial").' - '.Input::get("fecha_final").') a '.date("Y-m-d H:i:s").'</td>
 		            </tr>
 				</tfoot>
 				<thead>
@@ -368,6 +401,8 @@ class Business_ReportsController extends \BaseController {
 				        <th>Nombre Cliente</th>
 				    	<th>Valor</th>
 				    </tr>';
+
+				$suma_total = 0;
 				foreach ($contratos as $contrato) {
 					$contrato = (array) $contrato;
 					$output.='
@@ -378,7 +413,14 @@ class Business_ReportsController extends \BaseController {
 				        <td>'.utf8_decode($contrato['cliente_nombre']).'</td>
 				        <td>'.$contrato['valor'].'</td>'
 				    .'</tr>';
+				    $suma_total += $contrato['valor'];
 				}
+				$output.='
+			    <tr>
+			        <td colspan="3"></td>
+			        <th>TOTAL</th>
+			        <th>'.$suma_total.'</th>
+			    <tr>';
 
 				$output.='
 					<tr><td colspan="8"></td></tr>
@@ -394,6 +436,8 @@ class Business_ReportsController extends \BaseController {
 				    	<th>Valor</th>
 				    </tr>
 				</thead>';
+
+				$suma_total_dev = 0;
 				foreach ($recibos as $recibo) {
 					$recibo = (array) $recibo;
 					$output.='
@@ -406,7 +450,21 @@ class Business_ReportsController extends \BaseController {
 				        <td>'.utf8_decode($payment->types[$recibo['tipo']]).'</td>
 				        <td>'.$recibo['valor'].'</td>'
 				    .'</tr>';
+				    $suma_total_dev += $recibo['valor'];
 				}
+				$output.='
+			    <tr>
+			        <td colspan="5"></td>
+			        <th>TOTAL</th>
+			        <th>'.$suma_total_dev.'</th>
+			    <tr>';
+
+			    $output.='
+			    <tr>
+			        <td colspan="5"></td>
+			        <th>TOTAL VENTAS</th>
+			        <th>'.($suma_total - $suma_total_dev).'</th>
+			    <tr>';
 
 			$output.= '</table>';
 
@@ -442,7 +500,7 @@ class Business_ReportsController extends \BaseController {
 			<table>
 				<tfoot>
 		            <tr>
-						<td colspan="8">GNP :: Software Ventas por periodo ('.Input::get("fecha_inicial").' - '.Input::get("fecha_final").') a '.date("Y-m-d H:i:s").'</td>
+						<td colspan="8">GNP :: Software '.User::getNameVersion().' Ventas por periodo ('.Input::get("fecha_inicial").' - '.Input::get("fecha_final").') a '.date("Y-m-d H:i:s").'</td>
 		            </tr>
 				</tfoot>
 				<thead>

@@ -47,7 +47,7 @@ class Report extends Eloquent {
 			<table class="table table-striped">
 				<thead>
 		            <tr>
-						<td>GNP :: Software Estado de cuenta a '.date("Y-m-d").' Cliente '.utf8_decode($customer->nombre).'</td>
+						<td>GNP :: Software '.User::getNameVersion().' Estado de cuenta a '.date("Y-m-d").' Cliente '.utf8_decode($customer->nombre).'</td>
 		            </tr>
 				</thead>
 			</table>';

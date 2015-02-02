@@ -83,4 +83,9 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
             $this->attributes['password'] = Hash::make($pass);
         }		
 	}
+
+    public static function getNameVersion()
+    {
+        return (Request::getHost() == 'duitama.gruponaturalpower.in') ? '(Duitama)' : '';
+    }
 }

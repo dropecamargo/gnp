@@ -61,7 +61,7 @@ class Payment extends Eloquent {
         if (Input::has("cliente_nombre")) {          
             $query->where('clientes.nombre', 'like', '%'.Input::get("cliente_nombre").'%');
         }       
-        $query->orderby('recibos.fecha', 'DESC');
+        $query->orderby('recibos.numero', 'ASC');
         return $query->paginate();
     }
 }

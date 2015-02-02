@@ -9,7 +9,10 @@
     <link rel="icon" href="../../favicon.ico">
 
     <title>GNP Software</title>
-
+  
+    {{--*/ 
+      $background = (Request::getHost() == 'duitama.gruponaturalpower.in') ? '#A9F5BC' : '';
+    /*--}}
     <!-- Bootstrap core CSS -->
     <link href="{{ asset('bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
 
@@ -25,7 +28,7 @@
     <![endif]-->
   </head>
 
-  <body>
+  <body style="background-color: {{ $background }} !important;">
     <div class="container">
       @yield('content')
     </div>

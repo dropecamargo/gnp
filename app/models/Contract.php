@@ -76,10 +76,16 @@ class Contract extends Eloquent {
             $query->where('clientes.nombre', 'like', '%'.Input::get("cliente_nombre").'%');
         }       
         $query->groupBy('contratos.id');
-        if (Input::has("saldo")) {         
-            $query->havingRaw('saldo > 0'); 
+        
+        // Ocultando contratos saldo 0, busqueda inicial
+        if (Request::isMethod('get') && !Request::ajax()) {
+            $query->havingRaw('saldo > 0');
         }
-        $query->orderby('contratos.fecha', 'ASC');
+
+        if (Input::has("saldo")) {         
+           $query->havingRaw('saldo > 0'); 
+        }
+        $query->orderby('contratos.numero', 'ASC');
         return $query->paginate();
     }
 }

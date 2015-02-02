@@ -7,7 +7,8 @@
 @endif
 
 {{ Form::open(array('url' => '/login', 'class'=>'form-signin')) }}
-	<h2 class="form-signin-heading">Iniciar sesión</h2>   
+    <h2 class="form-signin-heading">Iniciar sesión</h2>   
+	<h3>{{{ User::getNameVersion() }}}</h3>   
     {{ Form::text('username', Input::old('username'), array(
     	'class' => 'form-control',
     	'placeholder' => "Usuario",

@@ -110,4 +110,42 @@
     <p>
         <a href="{{ route('business.contracts.edit', $contract->id) }}" class="btn btn-primary">Editar</a>                  
     </p>
+
+    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingTwo">
+                <h4 class="panel-title">
+                    <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Bitacora de cambios
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                <div class="panel-body">
+                    <table id="table-employees" class="table table-striped" style="width:100%" align="center">
+                        <thead>
+                            <tr>
+                                <th>Campo</th>
+                                <th>Anterior</th>
+                                <th>Nuevo</th>
+                                <th>Usuario</th>
+                                <th>Fecha</th>
+                            </tr>  
+                        </thead>                
+                        <tbody>
+                            @foreach ($bitacoras as $bitacora)
+                                <tr>
+                                    <td>{{ $bitacora->campo }}</td>
+                                    <td>{{ $bitacora->anterior }}</td>
+                                    <td>{{ $bitacora->nuevo }}</td>
+                                    <td>{{ $bitacora->name }}</td>
+                                    <td>{{ $bitacora->created_at }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 @stop 

@@ -134,9 +134,14 @@ class Business_ContractsController extends \BaseController {
         	->join('productos', 'productos.id', '=', 'contratop.producto')
         	->where('contrato', '=', $contract->id)->get();
 
+        $bitacoras = Bitacora::select('bitacora.*', 'name')
+        	->join('users', 'users.id', '=', 'bitacora.usuario')
+        	->where('tabla', '=', 'contratos')
+        	->where('llave', '=', $contract->id)->get();
+
         return View::make('business/contracts/show', array('contract' => $contract, 
         	'customer' => $customer, 'vendor' => $vendor, 'quotas' => $quotas, 
-        	'products' => $products));
+        	'products' => $products, 'bitacoras' => $bitacoras));
 	}
 
 
@@ -167,7 +172,7 @@ class Business_ContractsController extends \BaseController {
         // Elimino datos carrito de session
         Session::forget(Contract::$key_cart_products);
 		// Recuperar productos contrato
-        $arproducts = ContractProduct::select('contratop.id','productos.nombre','contratop.cantidad')
+        $arproducts = ContractProduct::select('contratop.producto','productos.nombre','contratop.cantidad')
         	->join('productos', 'productos.id', '=', 'contratop.producto')
         	->where('contratop.devolucion', '=', '0')
         	->where('contrato', '=', $contract->id)->get();
@@ -175,7 +180,7 @@ class Business_ContractsController extends \BaseController {
         	$item = array();
         	$item['_key'] = Contract::$key_cart_products;
         	$item['_template'] = Contract::$template_cart_products;
-			$item['producto'] = $producto->id;
+			$item['producto'] = $producto->producto;
         	$item['producto_nombre'] = $producto->nombre;
         	$item['cantidad'] = $producto->cantidad;
         	SessionCart::addItem($item);
@@ -201,31 +206,103 @@ class Business_ContractsController extends \BaseController {
             App::abort(404);   
         }       
         $data = Input::all();
-        if ($contract->isValid($data)){      		        	
-        	DB::beginTransaction();	
-        	try{
+       
+        DB::beginTransaction();	
+    	try{
+	        // Registro bitacora numero	        
+	        if($data['numero'] != $contract->numero){
+    	        Bitacora::launch('contratos',$contract->id, 'NUMERO', $contract->numero, $data['numero']); 
+			}
+
+			// Registro bitacora fecha	        
+	        if($data['fecha'] != $contract->fecha){
+	        	Bitacora::launch('contratos',$contract->id, 'FECHA', $contract->fecha, $data['fecha']);
+			}
+
+			// Registro bitacora cliente	        
+	        if($data['cliente'] != $contract->cliente){
+	        	$old_customer = Customer::find($contract->cliente);
+	        	$new_customer = Customer::find($data['cliente']);
+	        	Bitacora::launch('contratos',$contract->id, 'CLIENTE', $old_customer->nombre, $new_customer->nombre);
+			}
+
+			// Registro bitacora vendedor	        
+	        if($data['vendedor'] != $contract->vendedor){
+    	        $old_vendor = Employee::find($contract->vendedor);
+                $new_vendor = Employee::find($data['vendedor']);
+	        	Bitacora::launch('contratos',$contract->id, 'VENDEDOR', $old_vendor->nombre, $new_vendor->nombre);
+			}
+
+	        if ($contract->isValid($data)){      		        	
+        		// Guardar contrato
         		$contract->fill($data);	        			
         		$contract->save();   
+        		
+		        // Comparar base de datos vs carrito para evaluar cambios
+		        $products = Session::get(Contract::$key_cart_products);    
+		        foreach ($products as $product) {				        	
+	 		       	$product = (object) $product;
 
-        	}catch(\Exception $exception){
-			    DB::rollback();
-				return Response::json(array('success' => false, 'errors' =>  "$exception - Consulte al administrador."));
-			}
-			DB::commit();
-        	if(Request::ajax()) {        	    
-        	    return Response::json(array('success' => true, 'contract' => $contract));
-        	}
-        	return Redirect::route('business.contracts.index');     	
-      	}else{
-      		if(Request::ajax()) {
-        		$data["errors"] = $contract->errors;
-            	$errors = View::make('errors', $data)->render();
-        		return Response::json(array('success' => false, 'errors' => $errors));
-			} 
-            return Redirect::route('business.contracts.create')->withInput()->withErrors($contract->errors);	
-      	}
+	 		      	$contract_product = ContractProduct::where('producto', '=', $product->producto)
+						->where('contrato', '=', $contract->id)
+	 		      		->first();
+					if($contract_product instanceof ContractProduct){
+						if($product->cantidad != $contract_product->cantidad){
+		        			Bitacora::launch('contratos',$contract->id, 'CANTIDAD PRODUCTO: '.$product->producto_nombre, $contract_product->cantidad, $product->cantidad);
+		 	      			$contract_product->cantidad = $product->cantidad;
+		 	      			$contract_product->save();
+						}	
+					}else{
+			        	$contract_product = new ContractProduct();
+			        	$contract_product->contrato = $contract->id;
+			        	$contract_product->producto = $product->producto;
+			        	$contract_product->cantidad = $product->cantidad;
+			        	$contract_product->devolucion = 0;
+			        	$contract_product->save();
+						Bitacora::launch('contratos',$contract->id, 'PRODUCTO: '.$product->producto_nombre, '', 'AGREGADO');
+    	    		}
+				}
+				// Borrar productos eliminados	        	
+    	        $arproducts = ContractProduct::select('contratop.producto','productos.nombre','contratop.cantidad')
+		        	->join('productos', 'productos.id', '=', 'contratop.producto')
+		        	->where('contratop.devolucion', '=', '0')
+		        	->where('contrato', '=', $contract->id)->get();
+		        foreach ($arproducts as $producto) {
+		        	$encontrado = false;
+		        	foreach ($products as $product) {
+		        		$product = (object) $product;
+		        		if($producto->producto == $product->producto){
+		        			$encontrado = true;
+		        			continue;
+		        		}
+		        	}
+		        	if($encontrado == false) {
+		        		DB::table('contratop')->where('producto', '=', $producto->producto)->where('contrato', '=', $contract->id)->delete();
+		        		Bitacora::launch('contratos',$contract->id, 'PRODUCTO: '.$producto->nombre, '', 'ELIMINADO');
+		        	}		
+		        }
+		       	
+		       	// Actualizar cuotas     
+		       	//
+
+	      	}else{
+	      		if(Request::ajax()) {
+	        		$data["errors"] = $contract->errors;
+	            	$errors = View::make('errors', $data)->render();
+	        		return Response::json(array('success' => false, 'errors' => $errors));
+				} 
+	            return Redirect::route('business.contracts.create')->withInput()->withErrors($contract->errors);	
+	      	}
+	    }catch(\Exception $exception){
+		    DB::rollback();
+			return Response::json(array('success' => false, 'errors' =>  "$exception - Consulte al administrador."));
+		}
+		DB::commit();
+		if(Request::ajax()) {        	    
+		    return Response::json(array('success' => true, 'contract' => $contract));
+		}
+		return Redirect::route('business.contracts.index'); 
 	}
-
 
 	/**
 	 * Remove the specified resource from storage.

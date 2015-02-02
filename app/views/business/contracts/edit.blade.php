@@ -17,7 +17,7 @@
   	<div align="center">
     	{{ Form::button('Editar contrato', array('type' => 'button','class' => 'btn btn-success', 'id' => 'btn-submit-contract' )) }}        
 	</div>
-	{{ Form::model($contract,  array('route' => array('business.contracts.update', $contract->id), 'method' => 'PATCH', 'id' => 'form-add-contract'), array('role' => 'form')) }}
+	{{ Form::model($contract,  array('route' => array('business.contracts.update', $contract->id), 'method' => 'PATCH', 'id' => 'form-edit-contract'), array('role' => 'form')) }}
 	<div class="row">
         <div class="form-group col-md-3">
             {{ Form::label('numero', 'Número') }}
@@ -186,17 +186,17 @@
 			});	
 
 			$("#btn-submit-contract").click(function() {
-				$("#form-add-contract").submit();
+				$("#form-edit-contract").submit();
 			});
 
-			$('#form-add-contract').on('submit', function(event){                             
+			$('#form-edit-contract').on('submit', function(event){                             
                 var url = $(this).attr('action');
                 event.preventDefault();
                 $.ajax({
                     type: 'PATCH',
                     cache: false,
                     dataType: 'json',
-                    data: $('#form-add-contract').serialize(),
+                    data: $('#form-edit-contract').serialize(),
                     url : url,
                     beforeSend: function() { 
                         $("#validation-errors-contract").hide().empty();                                     
@@ -221,10 +221,6 @@
 			$("#producto").change(function() {
 				$("#producto_nombre").val($("#producto option:selected").text())
 			});
-
-			$("#btn-submit-contract").click(function() {
-				$("#form-add-contract").submit();
-			});	
 
 			$('#form-cart-products-contract').on('submit', function(event){                             
 	            var url = $(this).attr('action')

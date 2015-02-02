@@ -9,6 +9,11 @@
     <link rel="icon" href="../../favicon.ico">
 
     <title>@yield('title', 'GNP Software')</title>
+
+    {{--*/ 
+      $background = (Request::getHost() == 'duitama.gruponaturalpower.in') ? '#A9F5BC' : '';
+    /*--}}
+
     <!-- Bootstrap core CSS -->
     <link href="{{ asset('bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/alertify.core.css') }}" rel="stylesheet">
@@ -32,7 +37,7 @@
     <![endif]-->
   </head>
 
-  <body>
+  <body style="background-color: {{ $background }} !important;">
     <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container-fluid">
 
@@ -43,7 +48,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">GNP Software</a>
+          <a class="navbar-brand" href="#">GNP Software {{{ User::getNameVersion() }}}</a>
 
         </div>
         <div class="navbar-collapse collapse">

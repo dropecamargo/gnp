@@ -22,7 +22,7 @@
         </div>
         <div class="form-group col-md-2">        	
             {{ Form::label('saldo', 'Saldo > 0') }}
-    		{{ Form::checkbox('saldo', 'value') }}
+    		{{ Form::checkbox('saldo', 'value', true) }}
         </div>
  	</div> 	
  	<div class="row" align="center">
