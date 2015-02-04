@@ -18,6 +18,10 @@ class Contract extends Eloquent {
 
     public static $template_cart_products = 'business/contracts/products';
 
+    public static $key_cart_quotas = 'key_cart_contract_quotas';
+
+    public static $template_cart_quotas = 'business/contracts/quotas';
+
 	public function isValid($data)
     {
         $rules = array(            

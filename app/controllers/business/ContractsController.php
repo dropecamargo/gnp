@@ -187,9 +187,25 @@ class Business_ContractsController extends \BaseController {
         }
         $html_products = SessionCart::show(Contract::$key_cart_products, Contract::$template_cart_products);
         
+        // Elimino datos carrito de session
+        Session::forget(Contract::$key_cart_quotas);
+		$quotas = Quota::where('contrato', '=', $contract->id)->get();
+		foreach ($quotas as $quota) {
+        	$item = array();
+        	$item['_key'] = Contract::$key_cart_quotas;
+        	$item['_template'] = Contract::$template_cart_quotas;
+			$item['cuota'] = $quota->cuota;
+			$item['fecha'] = $quota->fecha;
+			$item['valor'] = $quota->valor;
+			$item['saldo'] = $quota->saldo;
+        	SessionCart::addItem($item);
+        }	
+		$html_quotas = SessionCart::show(Contract::$key_cart_quotas, Contract::$template_cart_quotas);
+
+
       	return View::make('business/contracts/edit', array('contract' => $contract, 
         	'customer' => $customer, 'vendor' => $vendor, 'vendors' => $vendors, 'products' => $products, 
-        	'html_products' => $html_products));
+        	'html_products' => $html_products, 'html_quotas' => $html_quotas));
 	}
 
 
@@ -283,8 +299,29 @@ class Business_ContractsController extends \BaseController {
 		        }
 		       	
 		       	// Actualizar cuotas     
-		       	//
-
+		       	$x = "";
+		       	$saldo_contrato = 0;
+		       	$valor_cuotas = 0;
+		       	$quotas = Session::get(Contract::$key_cart_quotas);    
+		        foreach ($quotas as $quota) {				        	
+	 		       	$quota = (object) $quota;
+	 		   		if(Input::has('valor_cuota_'.$quota->cuota)){
+	 		   			$x.= ' <br/> '.$quota->cuota.' - '.Input::get('valor_cuota_'.$quota->cuota);
+	 		   			$valor_cuotas += Input::get('valor_cuota_'.$quota->cuota);
+		        		
+		        		$cuota = Input::get('valor_cuota_'.$quota->cuota);
+		        		DB::table('cuotas')->where('contrato', '=', $contract->id)
+		        		 	->where('cuota', '=', $quota->cuota)->update(array('valor' => $cuota, 'saldo' => $cuota));
+		        		Bitacora::launch('contratos',$contract->id, 'CUOTA: '.$quota->cuota, $quota->saldo, $cuota);
+	 		   		}else{
+	 		   			$valor_cuotas += $quota->saldo;
+	 		   		}
+	 		   		$saldo_contrato += $quota->saldo;
+	 		   	}
+	 		   	if($saldo_contrato != $valor_cuotas){
+		   			DB::rollback();
+        			return Response::json(array('success' => false, 'errors' => '<div class="alert alert-danger">Valor CUOTAS ('.$valor_cuotas.') DEBE ser igual a SALDO TOTAL ('.$saldo_contrato.') del contrato.</div>'));
+	 		   	}
 	      	}else{
 	      		if(Request::ajax()) {
 	        		$data["errors"] = $contract->errors;

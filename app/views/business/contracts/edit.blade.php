@@ -64,8 +64,14 @@
             {{ Form::text('primera', null, array('placeholder' => 'yyyy-mm-dd', 'class' => 'form-control', 'readonly' => 'readonly')) }}        
         </div>        
     </div>
+    
+    <div id="contract-list-quotas">
+    	{{ $html_quotas }}
+    </div>
+    <br />
     {{ Form::close() }}
 
+    
    	{{ Form::open(array('route' => 'util.cart.store', 'method' => 'POST', 'id' => 'form-cart-products-contract')) }}
 	<div class="row">
 		{{ Form::hidden('_key', Contract::$key_cart_products) }}
