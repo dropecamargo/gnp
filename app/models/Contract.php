@@ -8,7 +8,7 @@ class Contract extends Eloquent {
 	 */
 	protected $table = 'contratos';
 
-	protected $fillable = array('numero', 'fecha', 'cliente', 'vendedor', 'valor', 'cuotas', 'periodicidad', 'primera');
+	protected $fillable = array('numero', 'fecha', 'cliente', 'vendedor', 'valor', 'cuotas', 'periodicidad', 'primera', 'grupo');
 
 	public $errors;
 
@@ -27,6 +27,7 @@ class Contract extends Eloquent {
         $rules = array(            
             'numero' => 'required|min:1|max:10|unique:contratos',            
             'fecha' => 'required|date_format:Y-m-d',
+            'grupo' => 'required|numeric|min:1',
             'cliente_cedula' => 'required|min:5|max:15',
             'cliente' => 'required|numeric',
             'vendedor' => 'required|numeric|min:1',

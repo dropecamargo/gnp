@@ -1,34 +1,28 @@
 <div align="center">
-	{{ $contracts->links() }}
+	{{ $groups->links() }}
 </div>
-<table id="table-search-contracts" class="table table-striped">
+<table id="table-employees" class="table table-striped">
 	<thead>
 		<tr>
-			<th>Numero</th>
-			<th>Fecha</th>
-			<th>Cliente</th>
-			<th>Vendedor</th>
-			<th>Saldo</th>			
+			<th>Nombre</th>
+			<th>Estado</th>
 			<th>&nbsp;</th>
 		</tr>	
 	</thead>     	    	
 	<tbody>
-		@foreach ($contracts as $contract)
+		@foreach ($groups as $group)
 			<tr>
-				<td>{{ $contract->numero }}</td>
-				<td>{{ $contract->fecha }}</td>
-				<td>{{ $contract->cliente_nombre }}</td>
-				<td>{{ $contract->vendedor_nombre }}</td>
-				<td><?php echo number_format(round($contract->saldo,-1), 2,'.',',' ) ?></td>
+				<td>{{ $group->nombre }}</td>
+				<td>{{ $group->states[$group->activo] }}</td>
 				<td nowrap="nowrap">					
-					<a href="{{ route('business.contracts.show', $contract->id) }}" class="btn btn-info">Ver</a>
+					<a href="{{ route('business.groups.show', $group->id) }}" class="btn btn-info">Ver</a>
 					{{--*/ $allowed = array('A') /*--}}
     				@if (in_array(Auth::user()->perfil, $allowed))
-						<a href="{{ route('business.contracts.edit', $contract->id) }}" class="btn btn-primary">Editar</a>					
+						<a href="{{ route('business.groups.edit', $group->id) }}" class="btn btn-primary">Editar</a>	
 					@endif
 				</td>
 			</tr>
-		@endforeach
+		@endforeach	
 	</tbody>
 </table> 
 
@@ -40,7 +34,6 @@
 			$.ajax({
 				url: url,
 				type: "GET",
-				data: $('#form-search-contracts').serialize(),
 				datatype: "html",
 				beforeSend: function() {
 					$('#loading-app').modal('show');
@@ -48,7 +41,7 @@
 			})
 			.done(function(data) {				
 				$('#loading-app').modal('hide');
-				$("#contracts").empty().html(data.html);
+				$("#groups").empty().html(data.html);
 			})
 			.fail(function(jqXHR, ajaxOptions, thrownError)
 			{

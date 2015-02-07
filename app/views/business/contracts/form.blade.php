@@ -40,6 +40,10 @@
             	{{ Form::text('fecha', null, array('placeholder' => 'yyyy-mm-dd', 'class' => 'form-control')) }}        
         	</div>
         </div>
+        <div class="form-group col-md-3">
+            {{ Form::label('grupo', 'Grupo') }}
+            {{ Form::select('grupo', array('0' => 'Seleccione') + $groups ,null, array('class' => 'form-control')) }}
+        </div> 
     </div>	
 	<div class="row">
         <div class="form-group col-md-3">

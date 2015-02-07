@@ -34,5 +34,29 @@
     </div>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{{ asset('js/ie10-viewport-bug-workaround.js') }}"></script>
+
+    <style type="text/css">
+      .footer {
+        padding-top: 10px;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 50px;
+        background-color: #f5f5f5;
+      }
+    </style>
+    <footer class="footer">
+      <div class="container">
+        <div align="center">
+            Desarrollado por 
+            <a href="http://www.koi-ti.com" target="_blank">
+              KOI Tecnologías de la Información S.A.S.
+            </a>
+            <a href="http://www.koi-ti.com" target="_blank">
+              {{ HTML::image('images/koi.png', 'KOI') }}
+            </a>
+        </div>     
+      </div>
+    </footer>
   </body>
 </html>

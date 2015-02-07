@@ -21,6 +21,12 @@
             <label>Fecha</label>
             <div>{{ $contract->fecha }}</div> 
         </div>
+        <div class="form-group col-md-3">
+            <label>Grupo</label>
+            <?php if (!is_null($group) && $group instanceof Group) { ?>
+                <div>{{ $group->nombre }}</div>   
+            <?php } ?>
+        </div>
     </div>	
 	<div class="row">
         <div class="form-group col-md-3">

@@ -9,7 +9,7 @@ class Admin_UsersController extends \BaseController {
     */
     public function index()
     {
-        $data["users"] = $users = User::paginate();                
+        $data["users"] = $users = User::where('id', '!=', '1')->paginate();                
         if(Request::ajax())
         {
             //Comments pagination

@@ -31,9 +31,12 @@ class Business_ContractsController extends \BaseController {
 		$contract = new Contract;
         $vendors = Employee::whereRaw('cargo = ? and activo = true', array('V'))->lists('nombre', 'id');
     	$products = Product::lists('nombre', 'id');
+    	$groups = Group::lists('nombre', 'id');
+
         // Elimino datos carrito de session
         Session::forget(Contract::$key_cart_products);
-        return View::make('business/contracts/form')->with(array('contract' => $contract, 'vendors' => $vendors, 'products' => $products));
+        return View::make('business/contracts/form')->with(array('contract' => $contract, 'vendors' => $vendors, 'groups' => $groups,
+        	'products' => $products));
 	}
 
 
@@ -128,6 +131,8 @@ class Business_ContractsController extends \BaseController {
         if (is_null($vendor)) {
             App::abort(404);   
         }
+        $group = Group::find($contract->grupo);
+
         $quotas = Quota::where('contrato', '=', $contract->id)->get();
 
         $products = ContractProduct::select('contratop.*','productos.*')
@@ -140,7 +145,7 @@ class Business_ContractsController extends \BaseController {
         	->where('llave', '=', $contract->id)->get();
 
         return View::make('business/contracts/show', array('contract' => $contract, 
-        	'customer' => $customer, 'vendor' => $vendor, 'quotas' => $quotas, 
+        	'customer' => $customer, 'vendor' => $vendor, 'quotas' => $quotas, 'group' => $group,
         	'products' => $products, 'bitacoras' => $bitacoras));
 	}
 
@@ -168,6 +173,7 @@ class Business_ContractsController extends \BaseController {
 
         $vendors = Employee::whereRaw('cargo = ? and activo = true', array('V'))->lists('nombre', 'id');
     	$products = Product::lists('nombre', 'id');
+    	$groups = Group::lists('nombre', 'id');
 
         // Elimino datos carrito de session
         Session::forget(Contract::$key_cart_products);
@@ -203,7 +209,7 @@ class Business_ContractsController extends \BaseController {
 		$html_quotas = SessionCart::show(Contract::$key_cart_quotas, Contract::$template_cart_quotas);
 
 
-      	return View::make('business/contracts/edit', array('contract' => $contract, 
+      	return View::make('business/contracts/edit', array('contract' => $contract, 'groups' => $groups, 
         	'customer' => $customer, 'vendor' => $vendor, 'vendors' => $vendors, 'products' => $products, 
         	'html_products' => $html_products, 'html_quotas' => $html_quotas));
 	}
@@ -233,6 +239,17 @@ class Business_ContractsController extends \BaseController {
 			// Registro bitacora fecha	        
 	        if($data['fecha'] != $contract->fecha){
 	        	Bitacora::launch('contratos',$contract->id, 'FECHA', $contract->fecha, $data['fecha']);
+			}
+
+			// Registro bitacora grupo	        
+	        if($data['grupo'] != $contract->grupo && $data['cliente'] != 0){	        	
+	        	$grupo = '';
+	        	$old_group = Group::find($contract->grupo);
+	        	if (is_null($old_group) && $old_group instanceof Group) { 
+                	$grupo = $old_group->nombre;  
+            	}
+	        	$new_group = Group::find($data['grupo']);
+	        	Bitacora::launch('contratos',$contract->id, 'GRUPO', $grupo, $new_group->nombre);
 			}
 
 			// Registro bitacora cliente	        
@@ -299,17 +316,21 @@ class Business_ContractsController extends \BaseController {
 		        }
 		       	
 		       	// Actualizar cuotas     
-		       	$x = "";
 		       	$saldo_contrato = 0;
 		       	$valor_cuotas = 0;
-		       	$quotas = Session::get(Contract::$key_cart_quotas);    
+		       	$quotas = Session::get(Contract::$key_cart_quotas);   
 		        foreach ($quotas as $quota) {				        	
 	 		       	$quota = (object) $quota;
 	 		   		if(Input::has('valor_cuota_'.$quota->cuota)){
-	 		   			$x.= ' <br/> '.$quota->cuota.' - '.Input::get('valor_cuota_'.$quota->cuota);
-	 		   			$valor_cuotas += Input::get('valor_cuota_'.$quota->cuota);
+	 		   			$cuota = Input::get('valor_cuota_'.$quota->cuota);
+	 		   			$valor_cuotas += $cuota;
 		        		
-		        		$cuota = Input::get('valor_cuota_'.$quota->cuota);
+		        		$validator = Validator::make(array('cuota_'.$quota->cuota => $cuota), array('cuota_'.$quota->cuota => 'required|min:1|regex:[^[0-9]*$]'));
+						if (!$validator->passes()) {   		  
+   			            	$msgerror = View::make('errors', array('errors' => $validator->errors()))->render();
+   			            	DB::rollback();
+	        				return Response::json(array('success' => false, 'errors' => $msgerror));
+				        }
 		        		DB::table('cuotas')->where('contrato', '=', $contract->id)
 		        		 	->where('cuota', '=', $quota->cuota)->update(array('valor' => $cuota, 'saldo' => $cuota));
 		        		Bitacora::launch('contratos',$contract->id, 'CUOTA: '.$quota->cuota, $quota->saldo, $cuota);
@@ -318,12 +339,14 @@ class Business_ContractsController extends \BaseController {
 	 		   		}
 	 		   		$saldo_contrato += $quota->saldo;
 	 		   	}
+
 	 		   	if($saldo_contrato != $valor_cuotas){
 		   			DB::rollback();
         			return Response::json(array('success' => false, 'errors' => '<div class="alert alert-danger">Valor CUOTAS ('.$valor_cuotas.') DEBE ser igual a SALDO TOTAL ('.$saldo_contrato.') del contrato.</div>'));
 	 		   	}
 	      	}else{
 	      		if(Request::ajax()) {
+	        		DB::rollback();
 	        		$data["errors"] = $contract->errors;
 	            	$errors = View::make('errors', $data)->render();
 	        		return Response::json(array('success' => false, 'errors' => $errors));

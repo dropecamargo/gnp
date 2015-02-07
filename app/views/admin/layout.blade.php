@@ -75,6 +75,8 @@
             
             <li>{{ HTML::link('/business/products', 'Productos') }}</li>
             
+            <li>{{ HTML::link('/business/groups', 'Grupos') }}</li>
+
             <li>{{ HTML::link('/business/contracts', 'Contratos') }}</li>
             
             <li>{{ HTML::link('/business/payments', 'Recibos de pago') }}</li>
@@ -87,6 +89,26 @@
               <li>{{ HTML::link('/business/reports', 'Reportes') }}</li>
             @endif
           </ul>
+
+          <style type="text/css">
+            .footer {
+              padding-bottom: 50px;
+              position: absolute;
+              bottom: 5px;
+              width: 100%;
+              height: auto;
+              background-color: #f5f5f5;
+            }
+          </style>
+          <div align="left" class="footer">
+              Desarrollado por <br/>
+              <a href="http://www.koi-ti.com" target="_blank">
+                KOI Tecnologías de la Información S.A.S.
+              </a> <br/>
+              <a href="http://www.koi-ti.com" target="_blank">
+                {{ HTML::image('images/koi.png', 'KOI') }}
+              </a>
+          </div>
         </div>
         
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">

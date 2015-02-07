@@ -47,6 +47,9 @@ Route::group(array('before' => 'auth'), function()
 	// Rutas modulo recibos 
 	Route::resource('business/payments', 'Business_PaymentsController');
 
+	// Rutas modulo grupos 
+	Route::resource('business/groups', 'Business_GroupsController');
+
 	// Rutas modulo reportes 
 	Route::resource('business/reports', 'Business_ReportsController');
 	Route::post('business/reports/carteraedades', 'Business_ReportsController@carteraEdades');

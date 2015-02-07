@@ -132,6 +132,7 @@
                 $('#contrato').val('')
                 $('#saldo').val('')
                 $('#contrato_saldo').val('')
+                $("#contrato").focus()
             });
 
              $("#contrato").change(function() {
