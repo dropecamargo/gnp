@@ -164,11 +164,12 @@ class Business_ReportsController extends \BaseController {
 		<table>
 			<tfoot>
 	            <tr>
-					<td colspan="10">GNP :: Software '.User::getNameVersion().' Cartera vencida por edades a '.date("Y-m-d H:i:s").'</td>
+					<td colspan="11">GNP :: Software '.User::getNameVersion().' Cartera vencida por edades a '.date("Y-m-d H:i:s").'</td>
 	            </tr>
 			</tfoot>
 			<thead>
 			    <tr>
+			        <th></th>
 			        <th>Cliente</th>
 			        <th>Nombre</th>
 			        <th>Por vencer</th>';
@@ -198,35 +199,39 @@ class Business_ReportsController extends \BaseController {
 			</thead>
 			<tbody>';
 		$total_pv = 0; $total_m3 = 0; $total_m6 = 0; $total_m9 = 0; $total_m18 = 0; $total_m36 = 0; $total_m_36 = 0; $total_general = 0;
+		$item = 0;
+		$output_partial ='';
 		foreach ($reporte as $cartera) {
+			$item++;
 			$cartera = (array) $cartera;
-			$output.='
+			$output_partial.='
 		    <tr>
+		        <td>'.$item.'</td>
 		        <td>'.$cartera['cliente_cedula'].'</td>
 		        <td>'.utf8_decode($cartera['cliente_nombre']).'</td>
 		        <td>'.$cartera['pv'].'</td>';
 		        if($edades_cartera == 'T' || $edades_cartera == '30'){
-		        	$output.= '<td>'.$cartera['m3'].'</td>';
+		        	$output_partial.= '<td>'.$cartera['m3'].'</td>';
 		        }
 		        if($edades_cartera == 'T' || $edades_cartera == '60'){
-		        	$output.= '<td>'.$cartera['m6'].'</td>';
+		        	$output_partial.= '<td>'.$cartera['m6'].'</td>';
 		        }
 		        if($edades_cartera == 'T' || $edades_cartera == '90'){
-		        	$output.= '<td>'.$cartera['m9'].'</td>';
+		        	$output_partial.= '<td>'.$cartera['m9'].'</td>';
 		        }
 		        if($edades_cartera == 'T' || $edades_cartera == '180'){
-		        	$output.= '<td>'.$cartera['m18'].'</td>';
+		        	$output_partial.= '<td>'.$cartera['m18'].'</td>';
 		        }
 		        if($edades_cartera == 'T' || $edades_cartera == '360'){
-		        	$output.= '<td>'.$cartera['m36'].'</td>';
+		        	$output_partial.= '<td>'.$cartera['m36'].'</td>';
 		        }
 		        if($edades_cartera == 'T' || $edades_cartera == '370'){
-		        	$output.= '<td>'.$cartera['m_36'].'</td>';
+		        	$output_partial.= '<td>'.$cartera['m_36'].'</td>';
 		        }
 		        if($edades_cartera == 'T'){
-		        	$output.= '<td>'.$cartera['total'].'</td>';
+		        	$output_partial.= '<td>'.$cartera['total'].'</td>';
 		        }
-			$output.= '</tr>';
+			$output_partial.= '</tr>';
 
 			$total_pv += $cartera['pv'];
 			$total_m3 += $cartera['m3'];
@@ -240,8 +245,9 @@ class Business_ReportsController extends \BaseController {
 		
 		$output.='
 		    <tr>
+		        <th>'.$item.'</th>
 		        <td></td>
-		        <th>TOTAL</th>
+		        <th></th>
 		        <th>'.$total_pv.'</th>
 		        <th>'.$total_m3.'</th>
 		        <th>'.$total_m6.'</th>
@@ -250,7 +256,9 @@ class Business_ReportsController extends \BaseController {
 		        <th>'.$total_m36.'</th>
 		        <th>'.$total_m_36.'</th>
 		        <th>'.$total_general.'</th>
-		    <tr>';
+		    </tr>';
+
+		$output.= $output_partial;
 
 		$output.='
 			</tbody>
@@ -262,6 +270,189 @@ class Business_ReportsController extends \BaseController {
 	        'Cache-Control' => 'private',
 	        'Content-Type' => 'application/vnd.ms-excel',
 	        'Content-Disposition' => 'attachment; filename=gnp_cartera_edades_'.date('Y-m-d').'.xls',
+	        'Content-Transfer-Encoding' => ' binary'
+	    );
+		return Response::make($output, 200, $headers);
+	}
+
+	public function carteraEdadesContratos()
+	{	
+		$edades_cartera = 'T';
+		if(Input::has('edades') && Input::get('edades') != 'T') {
+			$edades_cartera = Input::get('edades');	
+		}	
+	
+		
+		DB::beginTransaction();	
+        try{
+			
+			
+			$query_cartera = "SELECT ct.numero as contrato, c.cuota, c.saldo as saldo, 
+				DATEDIFF( (DATE_FORMAT(c.fecha, '%Y-%m-%d' ) ) , (current_date) ) AS dias
+				FROM cuotas AS c
+				INNER JOIN contratos AS ct ON c.contrato = ct.id
+				WHERE 
+				c.saldo != 0
+				ORDER BY c.fecha ASC";
+			
+			$carteras = DB::select($query_cartera);
+			foreach ($carteras as $cartera) {
+				$cartera = (array) $cartera;
+				$report = new Report();
+				$report->cin1 = $cartera['contrato'];
+				if($cartera['dias'] >= 0) 
+					$report->cf1 = $cartera['saldo'];
+				else
+					$report->cf1 = 0;
+				if($cartera['dias'] <0 && $cartera['dias'] >=-30)
+					$report->cf2 = $cartera['saldo'];	
+				else	
+					$report->cf2 = 0;
+				if($cartera['dias'] <=-31 && $cartera['dias'] >=-60)
+					$report->cf3 = $cartera['saldo'];	
+				else
+					$report->cf3 = 0;			
+				if($cartera['dias'] <=-61 && $cartera['dias'] >=-90)
+					$report->cf4 = $cartera['saldo'];	
+				else
+					$report->cf4 = 0;		
+				if($cartera['dias'] <=-91 && $cartera['dias'] >=-180)
+					$report->cf5 = $cartera['saldo'];
+				else
+					$report->cf5 = 0;		
+				if($cartera['dias'] <=-181 && $cartera['dias'] >=-360)
+					$report->cf6 = $cartera['saldo'];	
+				else
+					$report->cf6 = 0;			
+				if($cartera['dias'] <-360)
+					$report->cf7 = $cartera['saldo'];	
+				else
+					$report->cf7 = 0;	
+				$report->cf8 = $cartera['saldo'];
+				$report->save();
+			}
+		}catch(\Exception $exception){
+		    DB::rollback();
+			return "$exception - Consulte al administrador.";
+		}
+
+		
+		$query_reporte = "SELECT cin1 as contrato, 
+			sum(ar.cf1) as pv, sum(ar.cf2) as m3, sum(ar.cf3) as m6, 
+			sum(ar.cf4) as m9, sum(ar.cf5) as m18, sum(ar.cf6) as m36, 
+			sum(ar.cf7) as m_36, sum(ar.cf8) as total
+			FROM auxiliarreporte AS ar
+			GROUP BY contrato
+			ORDER BY contrato ASC";
+		$reporte = DB::select($query_reporte); 
+		DB::rollback();
+		$output = '
+		<table>
+			<tfoot>
+	            <tr>
+					<td colspan="10">GNP :: Software '.User::getNameVersion().' Cartera vencida por edades a '.date("Y-m-d H:i:s").'</td>
+	            </tr>
+			</tfoot>
+			<thead>
+			    <tr>
+			        <th></th>
+			        <th>Contrato</th>
+			        <th>Por vencer</th>';
+			        if($edades_cartera == 'T' || $edades_cartera == '30'){
+			        	$output.= '<th>D 1 A 30</th>';
+			        }
+			        if($edades_cartera == 'T' || $edades_cartera == '60'){
+			        	$output.= '<th>D 31 A 60</th>';
+			        }
+			        if($edades_cartera == 'T' || $edades_cartera == '90'){
+			        	$output.= '<th>D 61 A 90</th>';
+			        }
+			        if($edades_cartera == 'T' || $edades_cartera == '180'){
+			        	$output.= '<th>D 91 A 180</th>';
+			        }
+			        if($edades_cartera == 'T' || $edades_cartera == '360'){
+			        	$output.= '<th>D 181 A 360</th>';
+			        }
+			        if($edades_cartera == 'T' || $edades_cartera == '370'){
+			        	$output.= '<th>MAS DE 360</th>';
+			        }
+			        if($edades_cartera == 'T'){
+			        	$output.= '<th>TOTAL</th>';
+			        }
+			        			                                                               
+		$output.= '</tr>
+			</thead>
+			<tbody>';
+		$total_pv = 0; $total_m3 = 0; $total_m6 = 0; $total_m9 = 0; $total_m18 = 0; $total_m36 = 0; $total_m_36 = 0; $total_general = 0;
+		$item = 0;
+		$output_partial ='';
+		foreach ($reporte as $cartera) {
+			$item++;
+			$cartera = (array) $cartera;
+			$output_partial.='
+		    <tr>
+		        <td>'.$item.'</td>
+		        <td>'.$cartera['contrato'].'</td>
+		        <td>'.$cartera['pv'].'</td>';
+		        if($edades_cartera == 'T' || $edades_cartera == '30'){
+		        	$output_partial.= '<td>'.$cartera['m3'].'</td>';
+		        }
+		        if($edades_cartera == 'T' || $edades_cartera == '60'){
+		        	$output_partial.= '<td>'.$cartera['m6'].'</td>';
+		        }
+		        if($edades_cartera == 'T' || $edades_cartera == '90'){
+		        	$output_partial.= '<td>'.$cartera['m9'].'</td>';
+		        }
+		        if($edades_cartera == 'T' || $edades_cartera == '180'){
+		        	$output_partial.= '<td>'.$cartera['m18'].'</td>';
+		        }
+		        if($edades_cartera == 'T' || $edades_cartera == '360'){
+		        	$output_partial.= '<td>'.$cartera['m36'].'</td>';
+		        }
+		        if($edades_cartera == 'T' || $edades_cartera == '370'){
+		        	$output_partial.= '<td>'.$cartera['m_36'].'</td>';
+		        }
+		        if($edades_cartera == 'T'){
+		        	$output_partial.= '<td>'.$cartera['total'].'</td>';
+		        }
+			$output_partial.= '</tr>';
+
+			$total_pv += $cartera['pv'];
+			$total_m3 += $cartera['m3'];
+			$total_m6 += $cartera['m6'];
+			$total_m9 += $cartera['m9'];
+			$total_m18 += $cartera['m18'];
+			$total_m36 += $cartera['m36'];
+			$total_m_36 += $cartera['m_36'];
+			$total_general += $cartera['total'];
+		}
+		
+		$output.='
+		    <tr>
+		        <th>'.$item.'</th>
+		        <th></th>
+		        <th>'.$total_pv.'</th>
+		        <th>'.$total_m3.'</th>
+		        <th>'.$total_m6.'</th>
+		        <th>'.$total_m9.'</th>
+		        <th>'.$total_m18.'</th>
+		        <th>'.$total_m36.'</th>
+		        <th>'.$total_m_36.'</th>
+		        <th>'.$total_general.'</th>
+		    </tr>';
+
+		$output.= $output_partial;
+
+		$output.='
+			</tbody>
+		</table>';
+	    $headers = array(
+	        'Pragma' => 'public',
+	        'Expires' => 'public',
+	        'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+	        'Cache-Control' => 'private',
+	        'Content-Type' => 'application/vnd.ms-excel',
+	        'Content-Disposition' => 'attachment; filename=gnp_cartera_edades_contratos_'.date('Y-m-d').'.xls',
 	        'Content-Transfer-Encoding' => ' binary'
 	    );
 		return Response::make($output, 200, $headers);
@@ -378,32 +569,46 @@ class Business_ReportsController extends \BaseController {
 		if (Input::has("detallado")) {
 			$payment = new Payment();
 			$query_recibos = "SELECT rb.*, ct.numero as contrato_numero, 
-				cl.cedula as cliente_cedula, cl.nombre as cliente_nombre
+				cl.cedula as cliente_cedula, cl.nombre as cliente_nombre, gr.nombre as grupo_nombre
 				FROM recibos as rb
 				INNER JOIN contratos AS ct ON rb.contrato = ct.id
+				LEFT JOIN grupos AS gr ON ct.grupo = gr.id
 				INNER JOIN clientes AS cl ON ct.cliente = cl.id
 				WHERE	
 				rb.tipo = 'DV'
 				AND	
-				rb.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."' 
-				ORDER BY rb.fecha DESC";
+				rb.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."'";
+
+			$grupo = '';
+			if(Input::has('grupo') && Input::get('grupo') != '0') {
+				$query_recibos.= " AND ct.grupo = ".Input::get('grupo');
+				$group = Group::find(Input::get('grupo'));
+				$grupo = ' Grupo '.utf8_decode($group->nombre);
+			}
+
+			$query_recibos.= " ORDER BY rb.fecha DESC ";
 			$recibos = DB::select($query_recibos);
 
 
 			$query_contratos = "SELECT ct.*, 
-				cl.cedula as cliente_cedula, cl.nombre as cliente_nombre
+				cl.cedula as cliente_cedula, cl.nombre as cliente_nombre, gr.nombre as grupo_nombre
 				FROM contratos as ct
+				LEFT JOIN grupos AS gr ON ct.grupo = gr.id
 				INNER JOIN clientes AS cl ON ct.cliente = cl.id
 				WHERE
-				ct.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."' 
-				ORDER BY ct.fecha DESC";
+				ct.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."'";
+			if(Input::has('grupo') && Input::get('grupo') != '0') {
+				$query_contratos.= " AND ct.grupo = ".Input::get('grupo');
+			}
+			$query_contratos.= " ORDER BY ct.fecha DESC ";
+
 			$contratos = DB::select($query_contratos);
 
         	$output = '
 			<table>
 				<tfoot>
 		            <tr>
-						<td colspan="8">GNP :: Software '.User::getNameVersion().' Ventas detalladas por periodo ('.Input::get("fecha_inicial").' - '.Input::get("fecha_final").') a '.date("Y-m-d H:i:s").'</td>
+						<td colspan="8">GNP :: Software '.User::getNameVersion().' Ventas detalladas por periodo ('.Input::get("fecha_inicial").' - '.Input::get("fecha_final").') a '.date("Y-m-d H:i:s").' '.$grupo.'</td>
 		            </tr>
 				</tfoot>
 				<thead>
@@ -412,6 +617,7 @@ class Business_ReportsController extends \BaseController {
 					<tr>
 				        <th>Contrato</th>
 				        <th>Fecha</th>
+				        <th>Grupo</th>
 				        <th>Cliente</th>
 				        <th>Nombre Cliente</th>
 				    	<th>Valor</th>
@@ -424,6 +630,7 @@ class Business_ReportsController extends \BaseController {
 				    <tr>
 				        <td>'.$contrato['numero'].'</td>
 				        <td>'.$contrato['fecha'].'</td>
+				        <td>'.utf8_decode($contrato['grupo_nombre']).'</td>
 				        <td>'.$contrato['cliente_cedula'].'</td>
 				        <td>'.utf8_decode($contrato['cliente_nombre']).'</td>
 				        <td>'.$contrato['valor'].'</td>'
@@ -432,7 +639,7 @@ class Business_ReportsController extends \BaseController {
 				}
 				$output.='
 			    <tr>
-			        <td colspan="3"></td>
+			        <td colspan="4"></td>
 			        <th>TOTAL</th>
 			        <th>'.$suma_total.'</th>
 			    <tr>';
@@ -445,6 +652,7 @@ class Business_ReportsController extends \BaseController {
 				        <th>Recibo</th>
 				        <th>Fecha</th>
 				        <th>Contrato</th>
+				        <th>Grupo</th>
 				        <th>Cliente</th>
 				        <th>Nombre Cliente</th>
 				    	<th>Tipo</th>
@@ -460,6 +668,7 @@ class Business_ReportsController extends \BaseController {
 				        <td>'.$recibo['numero'].'</td>
 				        <td>'.$recibo['fecha'].'</td>
 				        <td>'.$recibo['contrato_numero'].'</td>
+				        <td>'.utf8_decode($recibo['grupo_nombre']).'</td>
 				        <td>'.$recibo['cliente_cedula'].'</td>
 				        <td>'.utf8_decode($recibo['cliente_nombre']).'</td>
 				        <td>'.utf8_decode($payment->types[$recibo['tipo']]).'</td>
@@ -469,7 +678,7 @@ class Business_ReportsController extends \BaseController {
 				}
 				$output.='
 			    <tr>
-			        <td colspan="5"></td>
+			        <td colspan="6"></td>
 			        <th>TOTAL</th>
 			        <th>'.$suma_total_dev.'</th>
 			    <tr>';
@@ -499,15 +708,22 @@ class Business_ReportsController extends \BaseController {
 				FROM contratos
 				WHERE
 				contratos.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."'";
+			if(Input::has('grupo') && Input::get('grupo') != '0') {
+				$query_ventas.= " AND contratos.grupo = ".Input::get('grupo');
+			}
 			$ventas = DB::select($query_ventas);
 			$objVentas = $ventas[0];
 
 			$query_devoluciones = "SELECT COALESCE(SUM(recibos.valor),0) as devoluciones
 				FROM recibos 
+				INNER JOIN contratos AS ct ON recibos.contrato = ct.id
 				WHERE
 				recibos.tipo = 'DV' 
 				AND
 				recibos.fecha BETWEEN '".Input::get("fecha_inicial")."' AND '".Input::get("fecha_final")."'";
+			if(Input::has('grupo') && Input::get('grupo') != '0') {
+				$query_devoluciones.= " AND ct.grupo = ".Input::get('grupo');
+			}
         	$devoluciones = DB::select($query_devoluciones);
         	$objDevoluciones = $devoluciones[0];
 

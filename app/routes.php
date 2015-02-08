@@ -53,6 +53,7 @@ Route::group(array('before' => 'auth'), function()
 	// Rutas modulo reportes 
 	Route::resource('business/reports', 'Business_ReportsController');
 	Route::post('business/reports/carteraedades', 'Business_ReportsController@carteraEdades');
+	Route::post('business/reports/carteraedadescontratos', 'Business_ReportsController@carteraEdadesContratos');
 	Route::post('business/reports/estadocuenta', 'Business_ReportsController@estadoCuenta');
 	Route::post('business/reports/estadocuentapdf', 'Business_ReportsController@estadoCuentaPdf');
 	Route::post('business/reports/reciboscaja', 'Business_ReportsController@recibosCaja');
