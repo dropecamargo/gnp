@@ -16,7 +16,8 @@ class Business_ReportsController extends \BaseController {
             $customers = View::make('business/reports/customers', $data)->render();
             return Response::json(array('html' => $customers));
         }
-		return View::make('business/reports/index');
+        $groups = Group::lists('nombre', 'id');
+		return View::make('business/reports/index')->with(array('groups' => $groups));
 	}
 
 
@@ -283,17 +284,27 @@ class Business_ReportsController extends \BaseController {
 		$payment = new Payment();
 		$query_recibos = "SELECT rb.*, ct.numero as contrato_numero, 
 			cl.cedula as cliente_cedula, cl.nombre as cliente_nombre, 
-			em.cedula as cobrador_cedula , em.nombre as cobrador_nombre
+			em.cedula as cobrador_cedula , em.nombre as cobrador_nombre, 
+			ve.nombre as vendedor_nombre, gr.nombre as grupo_nombre
 		FROM recibos as rb
 		INNER JOIN contratos AS ct ON rb.contrato = ct.id
+		LEFT JOIN grupos AS gr ON ct.grupo = gr.id
 		INNER JOIN clientes AS cl ON ct.cliente = cl.id
 		INNER JOIN empleados AS em ON rb.cobrador = em.id
+		INNER JOIN empleados AS ve ON ct.vendedor = ve.id
 		WHERE
 		rb.fecha BETWEEN '".Input::get("fecha_inicial_reciboscaja")."' AND '".Input::get("fecha_final_reciboscaja")."'";
 		$tipo = '';
 		if(Input::has('tipo') && Input::get('tipo') != '0') {
 			$query_recibos.= " AND rb.tipo = '".Input::get('tipo')."'";
 			$tipo = ' Tipo '.utf8_decode($payment->types[Input::get('tipo')]);
+		}
+
+		$grupo = '';
+		if(Input::has('grupo') && Input::get('grupo') != '0') {
+			$query_recibos.= " AND ct.grupo = ".Input::get('grupo');
+			$group = Group::find(Input::get('grupo'));
+			$grupo = ' Grupo '.utf8_decode($group->nombre);
 		}
 
 		$query_recibos.= " ORDER BY rb.fecha DESC";
@@ -303,7 +314,7 @@ class Business_ReportsController extends \BaseController {
 		<table>
 			<tfoot>
 	            <tr>
-					<td colspan="8">GNP :: Software '.User::getNameVersion().' Recibos de caja a '.date("Y-m-d H:i:s").' por periodo ('.Input::get("fecha_inicial_reciboscaja").' - '.Input::get("fecha_final_reciboscaja").')'.$tipo.'</td>
+					<td colspan="10">GNP :: Software '.User::getNameVersion().' Recibos de caja a '.date("Y-m-d H:i:s").' por periodo ('.Input::get("fecha_inicial_reciboscaja").' - '.Input::get("fecha_final_reciboscaja").')'.$tipo.' '.$grupo.'</td>
 	            </tr>
 			</tfoot>
 			<thead>
@@ -312,9 +323,11 @@ class Business_ReportsController extends \BaseController {
 			        <th>Fecha</th>
 			        <th>Cobrador</th>
 			        <th>Contrato</th>
+			        <th>Vendedor</th>
 			        <th>Cliente</th>
 			        <th>Nombre Cliente</th>
 			    	<th>Tipo</th>
+			    	<th>Grupo</th>
 			    	<th>Valor</th>
 			    </tr>
 			</thead>
@@ -329,16 +342,18 @@ class Business_ReportsController extends \BaseController {
 		        <td>'.$recibo['fecha'].'</td>
 		        <td>'.utf8_decode($recibo['cobrador_nombre']).'</td>
 		        <td>'.$recibo['contrato_numero'].'</td>
+		        <td>'.utf8_decode($recibo['vendedor_nombre']).'</td>
 		        <td>'.$recibo['cliente_cedula'].'</td>
 		        <td>'.utf8_decode($recibo['cliente_nombre']).'</td>
 		        <td>'.utf8_decode($payment->types[$recibo['tipo']]).'</td>
+		        <td>'.utf8_decode($recibo['grupo_nombre']).'</td>
 		        <td>'.$recibo['valor'].'</td>'
 		    .'</tr>';
 		    $suma_total += $recibo['valor'];
 		}
 		$output.='
 		    <tr>
-		        <td colspan="6"></td>
+		        <td colspan="8"></td>
 		        <th>TOTAL</th>
 		        <th>'.$suma_total.'</th>
 		    <tr>';

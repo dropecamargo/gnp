@@ -29,7 +29,7 @@ class Business_ContractsController extends \BaseController {
 	public function create()
 	{
 		$contract = new Contract;
-        $vendors = Employee::whereRaw('cargo = ? and activo = true', array('V'))->lists('nombre', 'id');
+        $vendors = Employee::where('vendedor', true)->where('activo', true)->lists('nombre', 'id');
     	$products = Product::lists('nombre', 'id');
     	$groups = Group::lists('nombre', 'id');
 
@@ -171,7 +171,7 @@ class Business_ContractsController extends \BaseController {
             App::abort(404);   
         }
 
-        $vendors = Employee::whereRaw('cargo = ? and activo = true', array('V'))->lists('nombre', 'id');
+        $vendors = Employee::where('vendedor', true)->where('activo', true)->lists('nombre', 'id');
     	$products = Product::lists('nombre', 'id');
     	$groups = Group::lists('nombre', 'id');
 

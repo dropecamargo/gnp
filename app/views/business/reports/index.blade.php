@@ -84,7 +84,6 @@
 					<div class="panel-body">
 						{{ Form::open(array('url' => array('business/reports/reciboscaja'), 'method' => 'POST', 'id' => 'form-reporte-reciboscaja'), array('role' => 'form')) }}									
 							<div class="row" align="center">
-								<div class="form-group col-md-1"></div>
 								<div class="form-group col-md-3">
 									{{ Form::label('fecha_inicial_reciboscaja', 'Fecha Inicial') }}
 						            <div class="input-append date">	
@@ -97,14 +96,17 @@
 						            	{{ Form::text('fecha_final_reciboscaja', date('Y-m-d'), array('placeholder' => 'yyyy-mm-dd', 'class' => 'form-control')) }}        
 						        	</div>
 								</div>
-								<div class="form-group col-md-4">
+								<div class="form-group col-md-3">
 								{{ Form::label('tipo', 'Tipo') }}
 								{{ Form::select('tipo', array(
 									'0' => 'Todos', 'PA' => 'Pago', 'DE' => 'Descuento', 'DV' => 'Devolución'),
 									'T',array('class' => 'form-control', 'style' => 'width:30;')) 
 								}}
 								</div>
-								<div class="form-group col-md-1"></div>
+								<div class="form-group col-md-3">
+						            {{ Form::label('grupo', 'Grupo') }}
+						            {{ Form::select('grupo', array('0' => 'Seleccione') + $groups ,null, array('class' => 'form-control')) }}
+						        </div>
 							</div>
 							<p align="center">
 								{{ Form::button('Generar', array('class' => 'btn btn-info', 'id' => 'btn-submit-reporte-reciboscaja' )) }}

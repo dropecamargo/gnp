@@ -29,7 +29,7 @@ class Business_PaymentsController extends \BaseController {
 	public function create()
 	{
 		$payment = new Payment;
-		$collectors = Employee::whereRaw('cargo = ? and activo = true', array('C'))->lists('nombre', 'id');        
+        $collectors = Employee::where('cobrador', true)->where('activo', true)->lists('nombre', 'id');
         return View::make('business/payments/form')->with($arrayName = array('payment' => $payment, 'collectors' => $collectors));		
 	}
 

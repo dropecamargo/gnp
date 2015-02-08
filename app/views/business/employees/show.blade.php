@@ -28,8 +28,24 @@
         	<div>{{ $employee->states[$employee->activo] }}</div>
         </div>  
         <div class="form-group col-md-4">
-			<label>Cargo</label>
-			<div>{{ $employee->jobs[$employee->cargo] }}</div>
+			<label>Vendedor</label>
+			<div>
+				@if($employee->vendedor == true)
+					<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+				@else
+					<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+				@endif
+			</div>
+      	</div>
+      	<div class="form-group col-md-4">
+			<label>Cobrador</label>
+			<div>
+				@if($employee->cobrador == true)
+					<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+				@else
+					<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+				@endif
+			</div>
       	</div>
     </div>
     <div class="row">
