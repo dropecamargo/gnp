@@ -50,10 +50,10 @@
         <div align="center">
             Desarrollado por 
             <a href="http://www.koi-ti.com" target="_blank">
-              KOI Tecnologías de la Información S.A.S.
+              {{ HTML::image('images/koi.png', 'KOI') }}
             </a>
             <a href="http://www.koi-ti.com" target="_blank">
-              {{ HTML::image('images/koi.png', 'KOI') }}
+              KOI Tecnologías de la Información S.A.S.
             </a>
         </div>     
       </div>
