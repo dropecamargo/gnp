@@ -48,7 +48,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::resource('business/payments', 'Business_PaymentsController');
 
 	// Rutas modulo grupos 
-	Route::resource('business/groups', 'Business_GroupsController');
+	Route::resource('business/groups', 'GroupsController');
 
 	// Rutas modulo reportes 
 	Route::resource('business/reports', 'Business_ReportsController');

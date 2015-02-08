@@ -242,7 +242,7 @@ class Business_ContractsController extends \BaseController {
 			}
 
 			// Registro bitacora grupo	        
-	        if($data['grupo'] != $contract->grupo && $data['cliente'] != 0){	        	
+	        if($data['grupo'] != $contract->grupo && $data['grupo'] != 0){	        	
 	        	$grupo = '';
 	        	$old_group = Group::find($contract->grupo);
 	        	if (is_null($old_group) && $old_group instanceof Group) { 
@@ -253,14 +253,14 @@ class Business_ContractsController extends \BaseController {
 			}
 
 			// Registro bitacora cliente	        
-	        if($data['cliente'] != $contract->cliente){
+	        if($data['cliente'] != $contract->cliente && $data['cliente'] != ''){
 	        	$old_customer = Customer::find($contract->cliente);
 	        	$new_customer = Customer::find($data['cliente']);
 	        	Bitacora::launch('contratos',$contract->id, 'CLIENTE', $old_customer->nombre, $new_customer->nombre);
 			}
 
 			// Registro bitacora vendedor	        
-	        if($data['vendedor'] != $contract->vendedor){
+	        if($data['vendedor'] != $contract->vendedor && $data['vendedor'] != 0){
     	        $old_vendor = Employee::find($contract->vendedor);
                 $new_vendor = Employee::find($data['vendedor']);
 	        	Bitacora::launch('contratos',$contract->id, 'VENDEDOR', $old_vendor->nombre, $new_vendor->nombre);
