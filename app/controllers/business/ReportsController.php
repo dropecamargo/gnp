@@ -336,8 +336,7 @@ class Business_ReportsController extends \BaseController {
 			return "$exception - Consulte al administrador.";
 		}
 
-		
-		$query_reporte = "SELECT cin1 as contrato, cl.nombre as cliente, cl.direccion_casa as direccion_casa, 
+				$query_reporte = "SELECT cin1 as contrato, cl.nombre as cliente, cl.direccion_casa as direccion_casa, 
 			sum(ar.cf1) as pv, sum(ar.cf2) as m3, sum(ar.cf3) as m6, 
 			sum(ar.cf4) as m9, sum(ar.cf5) as m18, sum(ar.cf6) as m36, 
 			sum(ar.cf7) as m_36, sum(ar.cf8) as total
