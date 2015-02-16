@@ -10,13 +10,11 @@ class Employee extends Eloquent {
 
 	protected $perPage = 6;
 
-	protected $fillable = array('cedula', 'nombre', 'cargo', 'activo');
+	protected $fillable = array('cedula', 'nombre', 'activo');
 
 	public $errors;
 
 	public $states = array('0' => 'Inactivo', '1' => 'Activo');
-
-	public $jobs = array('C' => 'Cobrador', 'V' => 'Vendedor');
 
 	public function isValid($data)
     {
@@ -45,6 +43,19 @@ class Employee extends Eloquent {
         if ($this->isValid($data))
         {
             $this->fill($data);
+            // Vendedor
+            if(isset($data['vendedor'])){
+                $this->vendedor = true;
+            }else{
+                $this->vendedor = false;
+            }
+
+            // Cobrador
+            if(isset($data['cobrador'])){
+                $this->cobrador = true;
+            }else{
+                $this->cobrador = false;
+            }
             $this->save();            
             return true;
         }        

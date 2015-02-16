@@ -37,7 +37,7 @@ class Planilla extends Eloquent {
     public static function getData()
     {
         $query = Planilla::query();      
-        $query->join('empleados', 'cobrador', '=', 'empleados.id');
+        $query->join('empleados', 'planilla.cobrador', '=', 'empleados.id');
         $query->select('planilla.*','empleados.nombre as cobrador_nombre','empleados.cedula as cobrador_cedula');        
         if (Input::has("cobrador")) {
             if(Input::get("cobrador") != 0){

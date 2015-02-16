@@ -48,11 +48,12 @@ Route::group(array('before' => 'auth'), function()
 	Route::resource('business/payments', 'Business_PaymentsController');
 
 	// Rutas modulo grupos 
-	Route::resource('business/groups', 'Business_GroupsController');
+	Route::resource('business/groups', 'GroupsController');
 
 	// Rutas modulo reportes 
 	Route::resource('business/reports', 'Business_ReportsController');
 	Route::post('business/reports/carteraedades', 'Business_ReportsController@carteraEdades');
+	Route::post('business/reports/carteraedadescontratos', 'Business_ReportsController@carteraEdadesContratos');
 	Route::post('business/reports/estadocuenta', 'Business_ReportsController@estadoCuenta');
 	Route::post('business/reports/estadocuentapdf', 'Business_ReportsController@estadoCuentaPdf');
 	Route::post('business/reports/reciboscaja', 'Business_ReportsController@recibosCaja');

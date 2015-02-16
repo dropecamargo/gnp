@@ -43,8 +43,12 @@
             {{ Form::select('activo', $employee->states ,null, array('class' => 'form-control')) }}
         </div>
         <div class="form-group col-md-4">
-            {{ Form::label('cargo', 'Cargo') }}
-            {{ Form::select('cargo', $employee->jobs ,null, array('class' => 'form-control')) }}
+            {{ Form::label('vendedor', 'Vendedor') }}
+            <div>{{ Form::checkbox('vendedor', 'value', null) }}</div>
+        </div>
+        <div class="form-group col-md-4">
+            {{ Form::label('cobrador', 'Cobrador') }}
+            <div>{{ Form::checkbox('cobrador', 'value', null) }}</div>
         </div>
     </div>
     {{ Form::button($action . ' empleado', array('type' => 'submit', 'class' => 'btn btn-success')) }}        
