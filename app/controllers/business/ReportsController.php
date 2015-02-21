@@ -150,7 +150,7 @@ class Business_ReportsController extends \BaseController {
 			return "$exception - Consulte al administrador.";
 		}
 
-		$query_reporte = "SELECT cin1 as cliente, cl.nombre as cliente_nombre, cl.cedula as cliente_cedula,
+		$query_reporte = "SELECT cin1 as cliente, cl.nombre as cliente_nombre, cl.cedula as cliente_cedula, cl.telefono_casa as telefono_casa,
 			sum(ar.cf1) as pv, sum(ar.cf2) as m3, sum(ar.cf3) as m6, 
 			sum(ar.cf4) as m9, sum(ar.cf5) as m18, sum(ar.cf6) as m36, 
 			sum(ar.cf7) as m_36, sum(ar.cf8) as total
@@ -164,7 +164,7 @@ class Business_ReportsController extends \BaseController {
 		<table>
 			<tfoot>
 	            <tr>
-					<td colspan="11">GNP :: Software '.User::getNameVersion().' Cartera vencida por edades a '.date("Y-m-d H:i:s").'</td>
+					<td colspan="12">GNP :: Software '.User::getNameVersion().' Cartera vencida por edades a '.date("Y-m-d H:i:s").'</td>
 	            </tr>
 			</tfoot>
 			<thead>
@@ -172,6 +172,7 @@ class Business_ReportsController extends \BaseController {
 			        <th></th>
 			        <th>Cliente</th>
 			        <th>Nombre</th>
+			        <th>Telefono</th>
 			        <th>Por vencer</th>';
 			        if($edades_cartera == 'T' || $edades_cartera == '30'){
 			        	$output.= '<th>D 1 A 30</th>';
@@ -209,6 +210,7 @@ class Business_ReportsController extends \BaseController {
 		        <td>'.$item.'</td>
 		        <td>'.$cartera['cliente_cedula'].'</td>
 		        <td>'.utf8_decode($cartera['cliente_nombre']).'</td>
+		        <td>'.$cartera['telefono_casa'].'</td>
 		        <td>'.$cartera['pv'].'</td>';
 		        if($edades_cartera == 'T' || $edades_cartera == '30'){
 		        	$output_partial.= '<td>'.$cartera['m3'].'</td>';
@@ -246,7 +248,8 @@ class Business_ReportsController extends \BaseController {
 		$output.='
 		    <tr>
 		        <th>'.$item.'</th>
-		        <td></td>
+		        <th></th>
+		        <th></th>
 		        <th></th>
 		        <th>'.$total_pv.'</th>
 		        <th>'.$total_m3.'</th>
@@ -336,7 +339,7 @@ class Business_ReportsController extends \BaseController {
 			return "$exception - Consulte al administrador.";
 		}
 
-				$query_reporte = "SELECT cin1 as contrato, cl.nombre as cliente, cl.direccion_casa as direccion_casa, 
+		$query_reporte = "SELECT cin1 as contrato, cl.nombre as cliente, cl.direccion_casa as direccion_casa, cl.telefono_casa as telefono_casa,
 			sum(ar.cf1) as pv, sum(ar.cf2) as m3, sum(ar.cf3) as m6, 
 			sum(ar.cf4) as m9, sum(ar.cf5) as m18, sum(ar.cf6) as m36, 
 			sum(ar.cf7) as m_36, sum(ar.cf8) as total
@@ -351,7 +354,7 @@ class Business_ReportsController extends \BaseController {
 		<table>
 			<tfoot>
 	            <tr>
-					<td colspan="12">GNP :: Software '.User::getNameVersion().' Cartera vencida por edades a '.date("Y-m-d H:i:s").'</td>
+					<td colspan="13">GNP :: Software '.User::getNameVersion().' Cartera vencida por edades a '.date("Y-m-d H:i:s").'</td>
 	            </tr>
 			</tfoot>
 			<thead>
@@ -360,6 +363,7 @@ class Business_ReportsController extends \BaseController {
 			        <th>Contrato</th>
 			        <th>Cliente</th>
 			        <th>Direccion</th>
+			        <th>Telefono</th>
 			        <th>Por vencer</th>';
 			        if($edades_cartera == 'T' || $edades_cartera == '30'){
 			        	$output.= '<th>D 1 A 30</th>';
@@ -398,6 +402,7 @@ class Business_ReportsController extends \BaseController {
 		        <td>'.$cartera['contrato'].'</td>
 		        <td>'.$cartera['cliente'].'</td>
 		        <td>'.$cartera['direccion_casa'].'</td>
+		        <td>'.$cartera['telefono_casa'].'</td>
 		        <td>'.$cartera['pv'].'</td>';
 		        if($edades_cartera == 'T' || $edades_cartera == '30'){
 		        	$output_partial.= '<td>'.$cartera['m3'].'</td>';
@@ -435,6 +440,7 @@ class Business_ReportsController extends \BaseController {
 		$output.='
 		    <tr>
 		        <th>'.$item.'</th>
+		        <th></th>
 		        <th></th>
 		        <th></th>
 		        <th></th>
