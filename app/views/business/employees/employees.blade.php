@@ -6,7 +6,8 @@
 		<tr>
 			<th>Cédula</th>
 			<th>Nombre</th>
-			<th>Cargo</th>
+			<th>Vendedor</th>
+			<th>Cobrador</th>
 			<th>Estado</th>
 			<th>&nbsp;</th>
 		</tr>	
@@ -16,7 +17,20 @@
 			<tr>
 				<td>{{ $employee->cedula }}</td>
 				<td>{{ $employee->nombre }}</td>
-				<td>{{ $employee->jobs[$employee->cargo] }}</td>
+				<td align="center">
+					@if($employee->vendedor == true)
+						<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+					@else
+						<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+					@endif
+				</td>
+				<td align="center">
+					@if($employee->cobrador == true)
+						<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+					@else
+						<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>
+					@endif
+				</td>
 				<td>{{ $employee->states[$employee->activo] }}</td>
 				<td nowrap="nowrap">					
 					<a href="{{ route('business.employees.show', $employee->id) }}" class="btn btn-info">Ver</a>

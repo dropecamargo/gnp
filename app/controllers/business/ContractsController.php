@@ -29,7 +29,7 @@ class Business_ContractsController extends \BaseController {
 	public function create()
 	{
 		$contract = new Contract;
-        $vendors = Employee::whereRaw('cargo = ? and activo = true', array('V'))->lists('nombre', 'id');
+        $vendors = Employee::where('vendedor', true)->where('activo', true)->lists('nombre', 'id');
     	$products = Product::lists('nombre', 'id');
     	$groups = Group::lists('nombre', 'id');
 
@@ -171,7 +171,7 @@ class Business_ContractsController extends \BaseController {
             App::abort(404);   
         }
 
-        $vendors = Employee::whereRaw('cargo = ? and activo = true', array('V'))->lists('nombre', 'id');
+        $vendors = Employee::where('vendedor', true)->where('activo', true)->lists('nombre', 'id');
     	$products = Product::lists('nombre', 'id');
     	$groups = Group::lists('nombre', 'id');
 
@@ -242,7 +242,7 @@ class Business_ContractsController extends \BaseController {
 			}
 
 			// Registro bitacora grupo	        
-	        if($data['grupo'] != $contract->grupo && $data['cliente'] != 0){	        	
+	        if($data['grupo'] != $contract->grupo && $data['grupo'] != 0){	        	
 	        	$grupo = '';
 	        	$old_group = Group::find($contract->grupo);
 	        	if (is_null($old_group) && $old_group instanceof Group) { 
@@ -253,14 +253,14 @@ class Business_ContractsController extends \BaseController {
 			}
 
 			// Registro bitacora cliente	        
-	        if($data['cliente'] != $contract->cliente){
+	        if($data['cliente'] != $contract->cliente && $data['cliente'] != ''){
 	        	$old_customer = Customer::find($contract->cliente);
 	        	$new_customer = Customer::find($data['cliente']);
 	        	Bitacora::launch('contratos',$contract->id, 'CLIENTE', $old_customer->nombre, $new_customer->nombre);
 			}
 
 			// Registro bitacora vendedor	        
-	        if($data['vendedor'] != $contract->vendedor){
+	        if($data['vendedor'] != $contract->vendedor && $data['vendedor'] != 0){
     	        $old_vendor = Employee::find($contract->vendedor);
                 $new_vendor = Employee::find($data['vendedor']);
 	        	Bitacora::launch('contratos',$contract->id, 'VENDEDOR', $old_vendor->nombre, $new_vendor->nombre);
@@ -321,6 +321,7 @@ class Business_ContractsController extends \BaseController {
 		       	$quotas = Session::get(Contract::$key_cart_quotas);   
 		        foreach ($quotas as $quota) {				        	
 	 		       	$quota = (object) $quota;
+	 		   		// Actualizo cuota
 	 		   		if(Input::has('valor_cuota_'.$quota->cuota)){
 	 		   			$cuota = Input::get('valor_cuota_'.$quota->cuota);
 	 		   			$valor_cuotas += $cuota;
@@ -332,18 +333,32 @@ class Business_ContractsController extends \BaseController {
 	        				return Response::json(array('success' => false, 'errors' => $msgerror));
 				        }
 		        		DB::table('cuotas')->where('contrato', '=', $contract->id)
-		        		 	->where('cuota', '=', $quota->cuota)->update(array('valor' => $cuota, 'saldo' => $cuota));
-		        		Bitacora::launch('contratos',$contract->id, 'CUOTA: '.$quota->cuota, $quota->saldo, $cuota);
+		        		 	->where('cuota', '=', $quota->cuota)->update(array('saldo' => $cuota));
+		        		Bitacora::launch('contratos',$contract->id, 'SALDO CUOTA: '.$quota->cuota, $quota->saldo, $cuota);
 	 		   		}else{
 	 		   			$valor_cuotas += $quota->saldo;
 	 		   		}
 	 		   		$saldo_contrato += $quota->saldo;
+
+	 		   		// Actualizo fecha
+	 		   		if(Input::has('fecha_cuota_'.$quota->cuota)){
+	 		   			$fecha = Input::get('fecha_cuota_'.$quota->cuota);
+		        		$validator = Validator::make(array('fecha_cuota_'.$quota->cuota => $fecha), array('fecha_cuota_'.$quota->cuota => 'required|date_format:Y-m-d'));
+						if (!$validator->passes()) {
+							$msgerror = View::make('errors', array('errors' => $validator->errors()))->render();
+   			            	DB::rollback();
+	        				return Response::json(array('success' => false, 'errors' => $msgerror));
+				        }
+				        DB::table('cuotas')->where('contrato', '=', $contract->id)
+		        		 	->where('cuota', '=', $quota->cuota)->update(array('fecha' => $fecha));
+		        		Bitacora::launch('contratos',$contract->id, 'FECHA CUOTA: '.$quota->cuota, $quota->fecha, $fecha);
+	 		   		}
 	 		   	}
 
-	 		   	if($saldo_contrato != $valor_cuotas){
-		   			DB::rollback();
-        			return Response::json(array('success' => false, 'errors' => '<div class="alert alert-danger">Valor CUOTAS ('.$valor_cuotas.') DEBE ser igual a SALDO TOTAL ('.$saldo_contrato.') del contrato.</div>'));
-	 		   	}
+	 		   	// if($saldo_contrato != $valor_cuotas){
+		   		// 	DB::rollback();
+        		// 	return Response::json(array('success' => false, 'errors' => '<div class="alert alert-danger">Valor CUOTAS ('.$valor_cuotas.') DEBE ser igual a SALDO TOTAL ('.$saldo_contrato.') del contrato.</div>'));
+	 		   	// }
 	      	}else{
 	      		if(Request::ajax()) {
 	        		DB::rollback();

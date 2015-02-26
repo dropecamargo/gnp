@@ -17,7 +17,7 @@ class Business_PlanillaController extends \BaseController {
             $planillas = View::make('business/planillas/planillas', $data)->render();
             return Response::json(array('html' => $planillas));
         }
-       	$collectors = Employee::whereRaw('cargo = ? and activo = true', array('C'))->lists('nombre', 'id');        
+		$collectors = Employee::where('cobrador', true)->where('activo', true)->lists('nombre', 'id');
         $data["collectors"] = $collectors;
         return View::make('business/planillas/list')->with($data);
 	}
@@ -31,7 +31,8 @@ class Business_PlanillaController extends \BaseController {
 	public function create()
 	{
 		$planilla = new Planilla;
-		$collectors = Employee::whereRaw('cargo = ? and activo = true', array('C'))->lists('nombre', 'id');        
+		$collectors = Employee::where('cobrador', true)->where('activo', true)->lists('nombre', 'id');
+      
         // Elimino datos carrito de session
         Session::forget(Planilla::$key_cart_contracts);
         return View::make('business/planillas/form')->with(array(
@@ -149,7 +150,7 @@ class Business_PlanillaController extends \BaseController {
         if (is_null ($planilla)) {
             App::abort(404);
         }
-		$collectors = Employee::whereRaw('cargo = ? and activo = true', array('C'))->lists('nombre', 'id');        
+		$collectors = Employee::where('cobrador', true)->where('activo', true)->lists('nombre', 'id');
        	
 		// Elimino datos carrito de session
         Session::forget(Planilla::$key_cart_contracts);

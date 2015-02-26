@@ -1,6 +1,6 @@
 <?php
 
-class Business_GroupsController extends \BaseController {
+class GroupsController extends \BaseController {
 
 	/**
 	 * Display a listing of the resource.

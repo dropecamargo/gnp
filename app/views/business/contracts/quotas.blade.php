@@ -23,12 +23,24 @@
 					</td>
 					--}}
 					<td width="10%;">{{ $item->cuota }}</td>
-					<td width="20%;">{{ $item->fecha }}</td>
+					<td width="15%;">{{ $item->fecha }}</td>
 					<td width="15%;"><?php echo number_format(round($item->valor), 2,'.',',' ) ?></td>
-                    <td width="20%;"><?php echo number_format(round($item->saldo), 2,'.',',' ) ?></td>
-					<td width="20%;" align="center">
+                    <td width="15%;"><?php echo number_format(round($item->saldo), 2,'.',',' ) ?></td>
+					<td width="15%;" align="center">
             			{{ Form::text('valor_cuota_'.$item->cuota, null, array('placeholder' => 'Valor', 'class' => 'form-control')) }}        
 					</td>
+					<td width="15%;" align="center">
+            			{{ Form::text('fecha_cuota_'.$item->cuota, null, array('id' => 'fecha_cuota_'.$item->cuota, 'placeholder' => 'Fecha', 'class' => 'form-control')) }}        
+					</td>
+					<script type="text/javascript">
+						$(function() {
+							$('#fecha_cuota_'+{{ $item->cuota }}).datepicker({
+								changeMonth: true,
+					          	changeYear: true,
+					          	dateFormat: "yy-mm-dd"	          	
+					        })
+						});
+					</script>
 				</tr>
 				{{--*/ $total_saldo += $item->saldo; /*--}}
 			@endforeach
