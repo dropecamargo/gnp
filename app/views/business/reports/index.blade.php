@@ -186,6 +186,40 @@
 					</div>
 				</div>
 			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading" role="tab" id="headingRVV">
+					<h4 class="panel-title">
+					<a class="collapsed" data-toggle="collapse" data-parent="#accordion-reportes" href="#collapseRVV" aria-expanded="false" aria-controls="collapseRVV">
+						Resumen ventas vendedor
+					</a>
+					</h4>
+				</div>
+				<div id="collapseRVV" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingRVV">
+					<div class="panel-body">
+						{{ Form::open(array('url' => array('business/reports/resumenventasvendedor'), 'method' => 'POST', 'id' => 'form-reporte-ventas-vendedor'), array('role' => 'form')) }}									
+							<div class="row" align="center">
+								<div class="form-group col-md-3"></div>
+								<div class="form-group col-md-3">
+									{{ Form::label('fecha_inicial_ventasvendedor', 'Fecha Inicial') }}
+						            <div class="input-append date">	
+						            	{{ Form::text('fecha_inicial_ventasvendedor', date('Y-m-d'), array('placeholder' => 'yyyy-mm-dd', 'class' => 'form-control')) }}        
+						        	</div>
+								</div>
+								<div class="form-group col-md-3">
+									{{ Form::label('fecha_final_ventasvendedor', 'Fecha Final') }}
+						            <div class="input-append date">	
+						            	{{ Form::text('fecha_final_ventasvendedor', date('Y-m-d'), array('placeholder' => 'yyyy-mm-dd', 'class' => 'form-control')) }}        
+						        	</div>
+								</div>
+								<div class="form-group col-md-3"></div>
+							</div>
+							<p align="center">
+								{{ Form::button('Generar', array('class' => 'btn btn-info', 'id' => 'btn-submit-reporte-ventas-vendedor' )) }}
+							</p>
+						{{ Form::close() }}
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<script type="text/javascript">
@@ -229,14 +263,6 @@
 	                changeYear: true,
 	                dateFormat: "yy-mm-dd"              
             	})
-	
-				$("#btn-submit-reporte-estado-cuenta").click(function() {
-		            if(!$("#cliente").val()){
-		            	alertify.error("Por favor seleccione cliente.");
-		            	return
-		            }
-					$("#form-reporte-estado-cuenta").submit();
-				});
 
             	$("#btn-submit-reporte-ventas").click(function() {
 					if(!$("#fecha_inicial").val()){
@@ -250,6 +276,30 @@
 					$("#form-reporte-ventas").submit();
 				});
 
+            	// Reporte resumen ventas vendedor
+				$("#fecha_inicial_ventasvendedor").datepicker({
+	                changeMonth: true,
+	                changeYear: true,
+	                dateFormat: "yy-mm-dd"              
+            	})
+
+            	$("#fecha_final_ventasvendedor").datepicker({
+	                changeMonth: true,
+	                changeYear: true,
+	                dateFormat: "yy-mm-dd"              
+            	})
+
+            	$("#btn-submit-reporte-ventas-vendedor").click(function() {
+					if(!$("#fecha_inicial_ventasvendedor").val()){
+		            	alertify.error("Por favor seleccione fecha inicial.");
+		            	return
+		            }
+		            if(!$("#fecha_final_ventasvendedor").val()){
+		            	alertify.error("Por favor seleccione fecha final.");
+		            	return
+		            }
+					$("#form-reporte-ventas-vendedor").submit();
+				});
             	// Reporte estado de cuenta
             	$("#btn-search-customers-reporte-estado-cuenta").click(function( event ) {  
 					var url = root_url + 'business/reports';	
@@ -273,6 +323,14 @@
 						$("#error-app-label").empty().html("No hay respuesta del servidor - Consulte al administrador.");				
 					});	
 				})
+
+				$("#btn-submit-reporte-estado-cuenta").click(function() {
+		            if(!$("#cliente").val()){
+		            	alertify.error("Por favor seleccione cliente.");
+		            	return
+		            }
+					$("#form-reporte-estado-cuenta").submit();
+				});
 			});
 			var estadoCuenta = {
 				setCustomer : function(cliente, cedula, nombre){

@@ -774,4 +774,123 @@ class Business_ReportsController extends \BaseController {
 			return Response::make($output, 200, $headers);
         }
 	}
+
+	public function resumenVentasVendedor()
+	{
+		DB::beginTransaction();	
+        try{
+			// Contratos
+			$query_contratos = "SELECT ct.vendedor, sum(ct.valor) as ventas FROM contratos as ct WHERE
+				ct.fecha BETWEEN '".Input::get("fecha_inicial_ventasvendedor")."' AND '".Input::get("fecha_final_ventasvendedor")."' GROUP BY ct.vendedor";
+			$contratos = DB::select($query_contratos);
+			foreach ($contratos as $contrato) {
+				$contrato = (array) $contrato;
+				$report = new Report();
+				$report->cin1 = $contrato['vendedor'];
+				$report->cf1 = $contrato['ventas'];
+				$report->cf2 = 0;
+				$report->cin2 = 0;
+				$report->cin3 = 0;
+				$report->save();
+			}
+
+			// Recibos (Devoluciones)
+			$query_recibos = "SELECT ct.vendedor, sum(rb.valor) as devoluciones
+				FROM recibos as rb INNER JOIN contratos AS ct ON rb.contrato = ct.id
+				WHERE	
+				rb.tipo = 'DV'
+				AND	
+				rb.fecha BETWEEN '".Input::get("fecha_inicial_ventasvendedor")."' AND '".Input::get("fecha_final_ventasvendedor")."' GROUP BY ct.vendedor";
+			$recibos = DB::select($query_recibos);
+			
+			foreach ($recibos as $recibo) {
+				$recibo = (array) $recibo;
+				$report = new Report();
+				$report->cin1 = $recibo['vendedor'];
+				$report->cf1 = 0;
+				$report->cf2 = $recibo['devoluciones'];
+				$report->cin2 = 0;
+				$report->cin3 = 0;
+				$report->save();
+			}
+
+			// Productos
+			$query_productos = "SELECT ct.vendedor, sum(cantidad) as productos, sum(devolucion) as devueltos 
+				FROM contratop as ctp INNER JOIN contratos AS ct ON ctp.contrato = ct.id
+				WHERE	
+				ct.fecha BETWEEN '".Input::get("fecha_inicial_ventasvendedor")."' AND '".Input::get("fecha_final_ventasvendedor")."' GROUP BY ct.vendedor";
+			$productos = DB::select($query_productos);
+
+			foreach ($productos as $producto) {
+				$producto = (array) $producto;
+				$report = new Report();
+				$report->cin1 = $producto['vendedor'];
+				$report->cf1 = 0;
+				$report->cf2 = 0;
+				$report->cin2 = $producto['productos'];
+				$report->cin3 = $producto['devueltos'];
+				$report->save();
+			}
+
+		}catch(\Exception $exception){
+		    DB::rollback();
+			return "$exception - Consulte al administrador.";
+		}
+
+		$query_reporte = "SELECT em.cedula as vendedor, em.nombre as vendedor_nombre, sum(cf1) as ventas, sum(cf2) as devoluciones, 
+			sum(cin2) as productos, sum(cin3) as productos_devueltos
+			FROM auxiliarreporte AS ar
+			INNER JOIN empleados AS em ON cin1 = em.id 
+			GROUP BY vendedor, vendedor_nombre
+			ORDER BY vendedor ASC";
+		$reporte = DB::select($query_reporte);
+		DB::rollback();
+
+		$output = '
+			<table>
+				<tfoot>
+		            <tr>
+						<td colspan="8">GNP :: Software '.User::getNameVersion().' Resumen ventas vendedor ('.Input::get("fecha_inicial_ventasvendedor").' - '.Input::get("fecha_final_ventasvendedor").') a '.date("Y-m-d H:i:s").'</td>
+		            </tr>
+				</tfoot>
+				<thead>
+				    <tr>
+				        <th>Vendedor</th>
+				        <th>Nombre</th>
+				        <th>Ventas</th>
+				        <th>Devoluciones</th>
+				        <th>Total</th>
+				        <th># Productos</th>
+				        <th># Productos Devueltos</th>
+				        <th>Total Productos</th>
+				    </tr>
+				</thead>
+				<tbody>';
+				foreach ($reporte as $report) {
+					$report = (array) $report;
+					$output.='
+				    <tr>
+				        <td>'.$report['vendedor'].'</td>
+				        <td>'.utf8_decode($report['vendedor_nombre']).'</td>
+				        <td>'.$report['ventas'].'</td>
+				        <td>'.$report['devoluciones'].'</td>
+				        <td>'.($report['ventas'] - $report['devoluciones']).'</td>
+				        <td>'.$report['productos'].'</td>
+				        <td>'.$report['productos_devueltos'].'</td>
+				        <td>'.($report['productos'] - $report['productos_devueltos']).'</td>
+				    </tr>';
+				}	
+		$output .= '</tbody>
+			</table>';
+		$headers = array(
+		        'Pragma' => 'public',
+		        'Expires' => 'public',
+		        'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+		        'Cache-Control' => 'private',
+		        'Content-Type' => 'application/vnd.ms-excel',
+		        'Content-Disposition' => 'attachment; filename=gnp_resumen_ventas_vendedor_'.date('Y-m-d').'.xls',
+		        'Content-Transfer-Encoding' => ' binary'
+		    );
+		return Response::make($output, 200, $headers);
+	}
 }

@@ -58,6 +58,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::post('business/reports/estadocuentapdf', 'Business_ReportsController@estadoCuentaPdf');
 	Route::post('business/reports/reciboscaja', 'Business_ReportsController@recibosCaja');
 	Route::post('business/reports/ventasperiodo', 'Business_ReportsController@ventasPeriodo');
+	Route::post('business/reports/resumenventasvendedor', 'Business_ReportsController@resumenVentasVendedor');
 
 	// Rutas planilla de cobro 
 	Route::resource('business/planilla', 'Business_PlanillaController');
