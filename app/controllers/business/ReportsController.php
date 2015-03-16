@@ -118,7 +118,13 @@ class Business_ReportsController extends \BaseController {
 					$report->cf1 = $cartera['saldo'];
 				else
 					$report->cf1 = 0;
-				if($cartera['dias'] <0 && $cartera['dias'] >=-30)
+
+				// Condicion adicional
+				// Primer rango de cartera vencida 16 a 30 dias.
+				if($cartera['dias'] <0 && $cartera['dias'] >=-15)
+					$report->cf1 = ($report->cf1 + $cartera['saldo']);	
+				
+				if($cartera['dias'] <=-16 && $cartera['dias'] >=-30)
 					$report->cf2 = $cartera['saldo'];	
 				else	
 					$report->cf2 = 0;
@@ -307,7 +313,14 @@ class Business_ReportsController extends \BaseController {
 					$report->cf1 = $cartera['saldo'];
 				else
 					$report->cf1 = 0;
-				if($cartera['dias'] <0 && $cartera['dias'] >=-30)
+
+				// Condicion adicional
+				// Primer rango de cartera vencida 16 a 30 dias.
+				if($cartera['dias'] <0 && $cartera['dias'] >=-15)
+					$report->cf1 = ($report->cf1 + $cartera['saldo']);
+
+				// if($cartera['dias'] <=-16 && $cartera['dias'] >=-30)
+				if($cartera['dias'] <=-16 && $cartera['dias'] >=-30)
 					$report->cf2 = $cartera['saldo'];	
 				else	
 					$report->cf2 = 0;
