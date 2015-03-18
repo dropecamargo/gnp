@@ -181,7 +181,7 @@ class Business_ReportsController extends \BaseController {
 			        <th>Telefono</th>
 			        <th>Por vencer</th>';
 			        if($edades_cartera == 'T' || $edades_cartera == '30'){
-			        	$output.= '<th>D 1 A 30</th>';
+			        	$output.= '<th>D 16 A 30</th>';
 			        }
 			        if($edades_cartera == 'T' || $edades_cartera == '60'){
 			        	$output.= '<th>D 31 A 60</th>';
@@ -379,7 +379,7 @@ class Business_ReportsController extends \BaseController {
 			        <th>Telefono</th>
 			        <th>Por vencer</th>';
 			        if($edades_cartera == 'T' || $edades_cartera == '30'){
-			        	$output.= '<th>D 1 A 30</th>';
+			        	$output.= '<th>D 16 A 30</th>';
 			        }
 			        if($edades_cartera == 'T' || $edades_cartera == '60'){
 			        	$output.= '<th>D 31 A 60</th>';

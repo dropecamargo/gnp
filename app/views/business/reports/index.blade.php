@@ -24,7 +24,7 @@
 								<div class="form-group col-md-6">
 								{{ Form::label('edades', 'Edad Cartera') }}						
 								{{ Form::select('edades', array(
-									'T' => 'Todas', '30' => '1 A 30', 
+									'T' => 'Todas', '30' => '16 A 30', 
 									'60' => '31 A 60', '90' => '61 A 90',
 									'180' => '91 A 180', '360' => '181 A 360',
 									'370' => 'MAS DE 360'),'T',array('class' => 'form-control', 'style' => 'width:30;')) 
@@ -55,7 +55,7 @@
 								<div class="form-group col-md-6">
 								{{ Form::label('edades', 'Edad Cartera') }}						
 								{{ Form::select('edades', array(
-									'T' => 'Todas', '30' => '1 A 30', 
+									'T' => 'Todas', '30' => '16 A 30', 
 									'60' => '31 A 60', '90' => '61 A 90',
 									'180' => '91 A 180', '360' => '181 A 360',
 									'370' => 'MAS DE 360'),'T',array('class' => 'form-control', 'style' => 'width:30;')) 

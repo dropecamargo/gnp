@@ -273,28 +273,32 @@ class Business_ContractsController extends \BaseController {
         		
 		        // Comparar base de datos vs carrito para evaluar cambios
 		        $products = Session::get(Contract::$key_cart_products);    
-		        foreach ($products as $product) {				        	
-	 		       	$product = (object) $product;
+		   		if(count($products) !=0 && $products != NULL)
+		   		{
+			        foreach ($products as $product) {				        	
+		 		       	$product = (object) $product;
 
-	 		      	$contract_product = ContractProduct::where('producto', '=', $product->producto)
-						->where('contrato', '=', $contract->id)
-	 		      		->first();
-					if($contract_product instanceof ContractProduct){
-						if($product->cantidad != $contract_product->cantidad){
-		        			Bitacora::launch('contratos',$contract->id, 'CANTIDAD PRODUCTO: '.$product->producto_nombre, $contract_product->cantidad, $product->cantidad);
-		 	      			$contract_product->cantidad = $product->cantidad;
-		 	      			$contract_product->save();
-						}	
-					}else{
-			        	$contract_product = new ContractProduct();
-			        	$contract_product->contrato = $contract->id;
-			        	$contract_product->producto = $product->producto;
-			        	$contract_product->cantidad = $product->cantidad;
-			        	$contract_product->devolucion = 0;
-			        	$contract_product->save();
-						Bitacora::launch('contratos',$contract->id, 'PRODUCTO: '.$product->producto_nombre, '', 'AGREGADO');
-    	    		}
+		 		      	$contract_product = ContractProduct::where('producto', '=', $product->producto)
+							->where('contrato', '=', $contract->id)
+		 		      		->first();
+						if($contract_product instanceof ContractProduct){
+							if($product->cantidad != $contract_product->cantidad){
+			        			Bitacora::launch('contratos',$contract->id, 'CANTIDAD PRODUCTO: '.$product->producto_nombre, $contract_product->cantidad, $product->cantidad);
+			 	      			$contract_product->cantidad = $product->cantidad;
+			 	      			$contract_product->save();
+							}	
+						}else{
+				        	$contract_product = new ContractProduct();
+				        	$contract_product->contrato = $contract->id;
+				        	$contract_product->producto = $product->producto;
+				        	$contract_product->cantidad = $product->cantidad;
+				        	$contract_product->devolucion = 0;
+				        	$contract_product->save();
+							Bitacora::launch('contratos',$contract->id, 'PRODUCTO: '.$product->producto_nombre, '', 'AGREGADO');
+	    	    		}
+					}
 				}
+				
 				// Borrar productos eliminados	        	
     	        $arproducts = ContractProduct::select('contratop.producto','productos.nombre','contratop.cantidad')
 		        	->join('productos', 'productos.id', '=', 'contratop.producto')
